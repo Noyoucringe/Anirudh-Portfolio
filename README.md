@@ -1,2 +1,2 @@
-# Portfolio2_Deploython_17102025
-Portfolio about me
+# Anirudh's_Portfolio
+Modern scroll-first portfolio for Meghamsh Anirudh built with React + Vite.
