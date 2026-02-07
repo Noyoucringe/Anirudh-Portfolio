@@ -1,85 +1,62 @@
 /* ====================================
-   TERMINAL HACKER AESTHETIC - JS
+   MODERN SCROLL-FIRST PORTFOLIO - JS
    ==================================== */
 
-// ====== TYPING ANIMATION ======
-function typeText(element, text, speed = 40) {
-  return new Promise((resolve) => {
-    let index = 0;
-    element.innerHTML = '';
-    
-    function type() {
-      if (index < text.length) {
-        element.innerHTML += text.charAt(index);
-        index++;
-        setTimeout(type, speed);
-      } else {
-        resolve();
-      }
-    }
-    type();
-  });
+const root = document.documentElement;
+const header = document.querySelector('.site-header');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function updateScrollVars() {
+  const scrollY = window.scrollY || window.pageYOffset;
+  const scrollHeight = root.scrollHeight - window.innerHeight;
+  const progress = scrollHeight > 0 ? scrollY / scrollHeight : 0;
+
+  root.style.setProperty('--scroll', `${scrollY}px`);
+  root.style.setProperty('--progress', progress.toString());
+
+  if (header) {
+    header.classList.toggle('compact', scrollY > 20);
+  }
 }
 
-// ====== INIT HERO ANIMATIONS ======
-async function initHeroAnimations() {
-  const typedText = document.querySelector('.typed-text');
-  const mainTitle = document.querySelector('.main-title');
-  
-  if (typedText) {
-    await typeText(typedText, 'cat portfolio.md', 50);
-  }
-  
-  if (mainTitle) {
-    mainTitle.style.animation = 'none';
-    await new Promise(r => setTimeout(r, 200));
-    mainTitle.style.animation = 'glitch 3s infinite';
-  }
+if (!prefersReducedMotion) {
+  window.addEventListener('scroll', () => requestAnimationFrame(updateScrollVars));
+  window.addEventListener('resize', updateScrollVars);
+  updateScrollVars();
 }
 
 // ====== SMOOTH SCROLL NAVIGATION ======
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function(e) {
-    const href = this.getAttribute('href');
-    if (href === '#') return;
-    
-    e.preventDefault();
+  anchor.addEventListener('click', (event) => {
+    const href = anchor.getAttribute('href');
+    if (!href || href === '#') return;
+
+    event.preventDefault();
     const target = document.querySelector(href);
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
+      target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     }
   });
 });
 
-// ====== SCROLL ANIMATIONS ======
-const observerOptions = {
-  threshold: 0.1,
-  rootMargin: '0px 0px -100px 0px'
-};
+// ====== REVEAL ANIMATIONS ======
+const revealItems = document.querySelectorAll('[data-reveal]');
 
-const observer = new IntersectionObserver((entries) => {
+const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
     }
   });
-}, observerOptions);
+}, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
 
-// Observe project boxes
-document.querySelectorAll('.project-box').forEach((box, index) => {
-  box.style.opacity = '0';
-  box.style.transform = 'translateY(20px)';
-  box.style.transition = `opacity 0.6s ease-out ${index * 0.1}s, transform 0.6s ease-out ${index * 0.1}s`;
-  observer.observe(box);
-});
-
-// Observe skill modules
-document.querySelectorAll('.module-box').forEach((module, index) => {
-  module.style.opacity = '0';
-  module.style.transform = 'translateY(20px)';
-  module.style.transition = `opacity 0.6s ease-out ${index * 0.08}s, transform 0.6s ease-out ${index * 0.08}s`;
-  observer.observe(module);
+revealItems.forEach(item => {
+  const delay = Number(item.dataset.delay || 0);
+  if (delay) {
+    item.style.transitionDelay = `${delay}ms`;
+  }
+  revealObserver.observe(item);
 });
 
 // ====== FORM HANDLING ======
@@ -93,7 +70,7 @@ if (contactForm) {
     const submitBtn = contactForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     
-    submitBtn.textContent = '$ sending_message...';
+    submitBtn.textContent = 'Sending...';
     submitBtn.style.opacity = '0.7';
     submitBtn.disabled = true;
     
@@ -110,12 +87,12 @@ if (contactForm) {
       
       if (response.ok) {
         if (formStatus) {
-          formStatus.textContent = '✓ Message transmitted successfully';
+          formStatus.textContent = 'Message sent successfully.';
           formStatus.style.color = '#3a3a3a';
         }
         contactForm.reset();
         
-        submitBtn.textContent = '$ Message sent!';
+        submitBtn.textContent = 'Sent!';
         
         setTimeout(() => {
           submitBtn.textContent = originalText;
@@ -124,13 +101,13 @@ if (contactForm) {
           if (formStatus) {
             formStatus.textContent = '';
           }
-        }, 3000);
+        }, 2500);
       } else {
         throw new Error('Submission failed');
       }
     } catch (error) {
       if (formStatus) {
-        formStatus.textContent = '✗ Transmission failed. Please check connection.';
+        formStatus.textContent = 'Message failed. Please try again.';
         formStatus.style.color = '#555555';
       }
       submitBtn.textContent = originalText;
