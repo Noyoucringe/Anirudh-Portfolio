@@ -15,15 +15,15 @@
   --accent-matcha: #88b04b;
   --border-soft: #d4c5b0;
   --shadow: 0 24px 60px rgba(42, 42, 42, 0.12);
-  --section-max: 1200px;
+  --section-max: 1400px;
   --scroll: 0px;
   --progress: 0;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
 }
 
 html {
@@ -63,6 +63,33 @@ body {
   transform: scaleX(var(--progress));
   background: linear-gradient(90deg, var(--accent-dark), var(--accent-matcha));
   transition: transform 0.1s linear;
+}
+
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(136, 176, 75, 0.35) 0%, rgba(136, 176, 75, 0) 70%);
+  transition: opacity 0.3s ease;
+  z-index: 5;
+}
+
+.cursor-glow.touch {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(136, 176, 75, 0.5) 0%, rgba(136, 176, 75, 0) 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-glow {
+    display: none;
+  }
 }
 
 .site-header {
@@ -141,7 +168,7 @@ main {
 }
 
 section {
-  padding: 0 6vw;
+  padding: 0 3.5vw;
   max-width: var(--section-max);
   margin: 0 auto;
 }
@@ -750,15 +777,20 @@ section {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-terminal);
+  background: rgba(58, 58, 58, 0.08);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent-maroon), var(--accent-silver));
+  background: linear-gradient(180deg, var(--accent-dark), var(--accent-matcha));
   border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-silver);
+  background: var(--accent-matcha);
   box-shadow: 0 0 15px rgba(136, 176, 75, 0.5);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-matcha) rgba(58, 58, 58, 0.12);
 }
