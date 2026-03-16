@@ -1,4 +1,12 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import DarkVeil from './DarkVeil';
+import VariableProximity from './VariableProximity';
+import ClickSpark from './ClickSpark';
+import GlassSurface from './GlassSurface';
+import GlareHover from './GlareHover';
+import GooeyNav from './GooeyNav';
+import CircularText from './CircularText';
+import './ShinyText.css';
 
 const featureCards = [
   { title: 'Intermediate Programming', description: 'Understanding logic, functions, and data structures.' },
@@ -57,6 +65,13 @@ const projects = [
     link: 'Regression_Model_Notes.pdf',
     label: 'Model Notes',
   },
+];
+
+const navItems = [
+  { label: 'Work', href: '#work' },
+  { label: 'Process', href: '#process' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Contact', href: '#contact' },
 ];
 
 type FormStatus = 'idle' | 'sending' | 'success' | 'error';
@@ -237,7 +252,7 @@ function useCursorGlow(prefersReducedMotion: boolean) {
 
 function App() {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const glowRef = useCursorGlow(prefersReducedMotion);
+  const heroRef = useRef<HTMLElement>(null);
 
   useScrollVariables(prefersReducedMotion);
   useRevealAnimations(prefersReducedMotion);
@@ -294,76 +309,164 @@ function App() {
 
   return (
     <>
-      <div className="scroll-progress" aria-hidden="true">
+      <div className="darkveil-layer" aria-hidden="true">
+        <DarkVeil
+          hueShift={0}
+          noiseIntensity={0.05}
+          scanlineIntensity={0}
+          speed={0.7}
+          scanlineFrequency={0.5}
+          warpAmount={4.6}
+        />
+      </div>
+      <ClickSpark sparkColor="#8b5cf6" sparkSize={15} sparkRadius={25} sparkCount={8} duration={400}>
+      <div className="app-shell">
+        <div className="corner-circular-text" aria-hidden="true">
+          <CircularText
+            text="MEGHAMSH*ANIRUDH*PORTFOLIO*"
+            onHover="speedUp"
+            spinDuration={20}
+            className="corner-circular-text-inner"
+          />
+        </div>
+        <div className="scroll-progress" aria-hidden="true">
         <span />
       </div>
-      <div className="cursor-glow" aria-hidden="true" ref={glowRef} />
 
       <header className="site-header">
         <div className="brand">MEGHAMSH ANIRUDH</div>
-        <nav className="site-nav">
-          <a href="#work" onClick={handleNavClick('work')}>
-            Work
-          </a>
-          <a href="#process" onClick={handleNavClick('process')}>
-            Process
-          </a>
-          <a href="#projects" onClick={handleNavClick('projects')}>
-            Projects
-          </a>
-          <a href="#contact" onClick={handleNavClick('contact')}>
-            Contact
-          </a>
-        </nav>
+        <div className="header-gooey-nav">
+          <GooeyNav
+            items={navItems}
+            particleCount={15}
+            particleDistances={[90, 10]}
+            particleR={100}
+            initialActiveIndex={0}
+            animationTime={600}
+            timeVariance={300}
+            colors={[1, 2, 3, 1, 2, 3, 1, 4]}
+          />
+        </div>
         <a className="header-cta" href="/Anirudh_Resume.pdf" download>
           Download Resume
         </a>
       </header>
 
       <main>
-        <section className="hero" id="top">
+        <section className="hero" id="top" ref={heroRef}>
           <div className="hero-content" data-reveal>
             <p className="eyebrow">Student Developer</p>
-            <h1 className="hero-title">Learning by building small, useful projects.</h1>
+            <h1 className="hero-title">
+              <VariableProximity
+                label="Learning by building small, useful projects."
+                fromFontVariationSettings="'wght' 400, 'opsz' 9"
+                toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                containerRef={heroRef}
+                radius={150}
+                falloff="linear"
+              />
+            </h1>
             <p className="hero-lead">
               I am a beginner who loves to explore software, solve problems, and improve with every project.
             </p>
             <div className="hero-cta">
-              <a className="btn primary" href="#projects" onClick={handleNavClick('projects')}>
-                View Projects
-              </a>
-              <a className="btn ghost" href="#contact" onClick={handleNavClick('contact')}>
-                Let&apos;s Talk
-              </a>
+              <GlassSurface
+                width={148}
+                height={58}
+                borderRadius={999}
+                displace={0.45}
+                distortionScale={-145}
+                brightness={86}
+                opacity={0.98}
+                blur={13}
+                backgroundOpacity={0.28}
+                saturation={1.16}
+                className="hero-glass-btn hero-glass-btn--primary"
+              >
+                <a className="btn btn-glass" href="#projects" onClick={handleNavClick('projects')}>
+                  View Projects
+                </a>
+              </GlassSurface>
+              <GlassSurface
+                width={148}
+                height={58}
+                borderRadius={999}
+                displace={0.42}
+                distortionScale={-175}
+                brightness={18}
+                opacity={0.9}
+                blur={12}
+                backgroundOpacity={0.14}
+                saturation={1.2}
+                mixBlendMode="screen"
+                className="hero-glass-btn hero-glass-btn--ghost"
+              >
+                <a className="btn btn-glass" href="#contact" onClick={handleNavClick('contact')}>
+                  Let&apos;s Talk
+                </a>
+              </GlassSurface>
             </div>
             <div className="hero-stats">
               <div>
-                <span className="stat-value">2+</span>
+                <span className="stat-value shiny-text">2+</span>
                 <span className="stat-label">Years Learning</span>
               </div>
               <div>
-                <span className="stat-value">5+</span>
+                <span className="stat-value shiny-text">5+</span>
                 <span className="stat-label">Projects Built</span>
               </div>
               <div>
-                <span className="stat-value">Intermediate</span>
+                <span className="stat-value shiny-text">Intermediate</span>
                 <span className="stat-label">Always Improving</span>
               </div>
             </div>
           </div>
           <div className="hero-visual" aria-hidden="true">
-            <div className="visual-card top" data-reveal data-delay="150">
+            <GlareHover
+              width="100%"
+              height="100%"
+              glareColor="#ffffff"
+              glareOpacity={0.22}
+              glareAngle={-30}
+              glareSize={320}
+              transitionDuration={900}
+              className="visual-card top"
+              data-reveal
+              data-delay="150"
+            >
               <p className="visual-title">Learning Basics</p>
               <p className="visual-desc">Core programming, logic, and data structures.</p>
-            </div>
-            <div className="visual-card mid" data-reveal data-delay="300">
+            </GlareHover>
+            <GlareHover
+              width="100%"
+              height="100%"
+              glareColor="#ffffff"
+              glareOpacity={0.22}
+              glareAngle={-30}
+              glareSize={320}
+              transitionDuration={900}
+              className="visual-card mid"
+              data-reveal
+              data-delay="300"
+            >
               <p className="visual-title">FullStack Practice</p>
               <p className="visual-desc">Clean layouts, simple interactions, and UI polish.</p>
-            </div>
-            <div className="visual-card bottom" data-reveal data-delay="450">
+            </GlareHover>
+            <GlareHover
+              width="100%"
+              height="100%"
+              glareColor="#ffffff"
+              glareOpacity={0.22}
+              glareAngle={-30}
+              glareSize={320}
+              transitionDuration={900}
+              className="visual-card bottom"
+              data-reveal
+              data-delay="450"
+            >
               <p className="visual-title">Project Mindset</p>
               <p className="visual-desc">Build, review, learn, and repeat.</p>
-            </div>
+            </GlareHover>
           </div>
         </section>
 
@@ -374,10 +477,22 @@ function App() {
           </div>
           <div className="feature-grid">
             {featureCards.map((card, index) => (
-              <article key={card.title} className="feature-card" data-reveal data-delay={(index + 1) * 100}>
+              <GlareHover
+                key={card.title}
+                width="100%"
+                height="100%"
+                glareColor="#ffffff"
+                glareOpacity={0.2}
+                glareAngle={-28}
+                glareSize={300}
+                transitionDuration={850}
+                className="feature-card"
+                data-reveal
+                data-delay={(index + 1) * 100}
+              >
                 <h3>{card.title}</h3>
                 <p>{card.description}</p>
-              </article>
+              </GlareHover>
             ))}
           </div>
         </section>
@@ -389,11 +504,23 @@ function App() {
           </div>
           <div className="process-grid">
             {processSteps.map((step, index) => (
-              <div key={step.title} className="process-step" data-reveal data-delay={index * 150}>
+              <GlareHover
+                key={step.title}
+                width="100%"
+                height="100%"
+                glareColor="#ffffff"
+                glareOpacity={0.2}
+                glareAngle={-28}
+                glareSize={300}
+                transitionDuration={850}
+                className="process-step"
+                data-reveal
+                data-delay={index * 150}
+              >
                 <span className="step-number">{step.step}</span>
                 <h3>{step.title}</h3>
                 <p>{step.description}</p>
-              </div>
+              </GlareHover>
             ))}
           </div>
         </section>
@@ -481,6 +608,8 @@ function App() {
         </p>
         <p>© 2026, Designed and built by ANIRUDH</p>
       </footer>
+    </div>
+    </ClickSpark>
     </>
   );
 }
