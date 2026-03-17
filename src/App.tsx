@@ -1,11 +1,13 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-import DarkVeil from './DarkVeil';
-import VariableProximity from './VariableProximity';
+import Beams from './Beams';
 import ClickSpark from './ClickSpark';
-import GlassSurface from './GlassSurface';
 import GlareHover from './GlareHover';
-import GooeyNav from './GooeyNav';
 import CircularText from './CircularText';
+import PillNav from './PillNav';
+import GradualBlur from './GradualBlur';
+import StarBorder from './StarBorder';
+import TiltedCard from './TiltedCard';
+import TextPressure from './TextPressure';
 import './ShinyText.css';
 
 const featureCards = [
@@ -20,6 +22,50 @@ const processSteps = [
   { step: '02', title: 'Practice', description: 'Build small projects to apply what I learned.' },
   { step: '03', title: 'Improve', description: 'Fix mistakes, clean up code, and keep moving forward.' },
   { step: '04', title: 'Reflect', description: 'Write down what worked and what to try next.' },
+];
+
+const skillGroups = [
+  {
+    title: 'Programming Languages',
+    items: [
+      { name: 'C', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg' },
+      { name: 'C++', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg' },
+      { name: 'Java', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
+      { name: 'Python', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+      { name: 'Go', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg' },
+    ],
+  },
+  {
+    title: 'Web Development',
+    items: [
+      { name: 'JavaScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
+      { name: 'TypeScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg' },
+      { name: 'React', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg' },
+      { name: 'HTML5', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg' },
+      { name: 'CSS3', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg' },
+      { name: 'Tailwind', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-original.svg' },
+      { name: 'Node.js', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg' },
+    ],
+  },
+  {
+    title: 'Databases & Tools',
+    items: [
+      { name: 'MySQL', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg' },
+      { name: 'Firebase', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/firebase/firebase-plain.svg' },
+      { name: 'Supabase', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/supabase/supabase-original.svg' },
+      { name: 'Git', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+      { name: 'GitHub', logo: 'https://cdn.simpleicons.org/github/FFFFFF' },
+      { name: 'VS Code', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg' },
+      { name: 'Linux', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg' },
+    ],
+  },
+  {
+    title: 'Design & Content',
+    items: [
+      { name: 'Figma', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg' },
+      { name: 'Canva', logo: '/canva-logo.svg' },
+    ],
+  },
 ];
 
 const projects = [
@@ -59,20 +105,23 @@ const projects = [
     label: 'View Deployment',
   },
   {
-    title: 'Regression Model',
-    description: 'Implemented a regression model with preprocessing, training, and evaluation for prediction tasks.',
-    tags: ['Scikit-learn', 'NumPy'],
-    link: 'Regression_Model_Notes.pdf',
-    label: 'Model Notes',
+    title: 'SentinelAI',
+    description: 'Web-based analytics platform that detects suspicious login behavior and identity theft using behavioral anomaly detection',
+    tags: ['Cybersecurity'],
+    link: 'https://sentinel-ai-flax.vercel.app/',
+    label: 'View Deployment',
   },
 ];
 
 const navItems = [
-  { label: 'Work', href: '#work' },
-  { label: 'Process', href: '#process' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'FOCUS AREAS', href: '#work' },
+  { label: 'WORKFLOW', href: '#process' },
+  { label: 'SKILLS', href: '#skills' },
+  { label: 'PROJECTS', href: '#projects' },
+  { label: 'CONTACT', href: '#contact' },
 ];
+
+const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
 type FormStatus = 'idle' | 'sending' | 'success' | 'error';
 
@@ -258,6 +307,8 @@ function App() {
   useRevealAnimations(prefersReducedMotion);
 
   const [formStatus, setFormStatus] = useState<FormStatus>('idle');
+  const [activeNavIndex, setActiveNavIndex] = useState(0);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
 
   const scrollBehavior: ScrollBehavior = useMemo(
     () => (prefersReducedMotion ? 'auto' : 'smooth'),
@@ -267,6 +318,86 @@ function App() {
   const handleNavClick = (targetId: string) => (event: React.MouseEvent) => {
     event.preventDefault();
     const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: scrollBehavior });
+    }
+  };
+
+  useEffect(() => {
+    const sectionIds = navItems.map((item) => item.href.replace('#', ''));
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+
+    if (sections.length === 0) return;
+
+    let rafId = 0;
+
+    const updateActiveFromScroll = () => {
+      const header = document.querySelector('.site-header') as HTMLElement | null;
+      const headerHeight = header?.offsetHeight ?? 0;
+      const triggerY = headerHeight + window.innerHeight * 0.22;
+
+      let nextActiveIndex = 0;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= triggerY) {
+          nextActiveIndex = index;
+        }
+      });
+
+      setActiveNavIndex((prev) => (prev === nextActiveIndex ? prev : nextActiveIndex));
+    };
+
+    const onScrollOrResize = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(updateActiveFromScroll);
+    };
+
+    updateActiveFromScroll();
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    return () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    let stopTimer: number | null = null;
+
+    const onScroll = () => {
+      setIsUserScrolling(true);
+      if (stopTimer) {
+        window.clearTimeout(stopTimer);
+      }
+      stopTimer = window.setTimeout(() => {
+        setIsUserScrolling(false);
+      }, 180);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (stopTimer) {
+        window.clearTimeout(stopTimer);
+      }
+    };
+  }, []);
+
+  const handlePillNavSelect = (index: number, href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    setActiveNavIndex(index);
+
+    const id = href.replace('#', '');
+    const target = document.getElementById(id);
     if (target) {
       target.scrollIntoView({ behavior: scrollBehavior });
     }
@@ -310,17 +441,34 @@ function App() {
   return (
     <>
       <div className="darkveil-layer" aria-hidden="true">
-        <DarkVeil
-          hueShift={0}
-          noiseIntensity={0.05}
-          scanlineIntensity={0}
-          speed={0.7}
-          scanlineFrequency={0.5}
-          warpAmount={4.6}
+        <Beams
+          beamWidth={5}
+          beamHeight={21}
+          beamNumber={20}
+          lightColor="#ffffff"
+          speed={2}
+          noiseIntensity={1.55}
+          scale={0.2}
+          rotation={30}
         />
       </div>
       <ClickSpark sparkColor="#8b5cf6" sparkSize={15} sparkRadius={25} sparkCount={8} duration={400}>
       <div className="app-shell">
+        <GradualBlur
+          target="page"
+          position="bottom"
+          height="7rem"
+          strength={2}
+          divCount={5}
+          curve="bezier"
+          exponential
+          opacity={1}
+          className="scroll-bottom-blur"
+          style={{
+            opacity: isUserScrolling ? 1 : 0,
+            transition: 'opacity 220ms ease-out',
+          }}
+        />
         <div className="corner-circular-text" aria-hidden="true">
           <CircularText
             text="MEGHAMSH*ANIRUDH*PORTFOLIO*"
@@ -334,77 +482,80 @@ function App() {
       </div>
 
       <header className="site-header">
-        <div className="brand">MEGHAMSH ANIRUDH</div>
-        <div className="header-gooey-nav">
-          <GooeyNav
-            items={navItems}
-            particleCount={15}
-            particleDistances={[90, 10]}
-            particleR={100}
-            initialActiveIndex={0}
-            animationTime={600}
-            timeVariance={300}
-            colors={[1, 2, 3, 1, 2, 3, 1, 4]}
-          />
-        </div>
-        <a className="header-cta" href="/Anirudh_Resume.pdf" download>
-          Download Resume
-        </a>
+        <PillNav
+          logo="/logo-mark.svg"
+          logoAlt="Meghamsh Anirudh Logo"
+          items={navItems}
+          activeHref={navItems[activeNavIndex]?.href}
+          className="custom-nav"
+          ease="power2.easeOut"
+          baseColor="#000000"
+          pillColor="#ffffff"
+          hoveredPillTextColor="#ffffff"
+          pillTextColor="#000000"
+          initialLoadAnimation={false}
+          onItemSelect={handlePillNavSelect}
+        />
       </header>
 
       <main>
         <section className="hero" id="top" ref={heroRef}>
           <div className="hero-content" data-reveal>
             <p className="eyebrow">Student Developer</p>
-            <h1 className="hero-title">
-              <VariableProximity
-                label="Learning by building small, useful projects."
-                fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                toFontVariationSettings="'wght' 1000, 'opsz' 40"
-                containerRef={heroRef}
-                radius={150}
-                falloff="linear"
-              />
-            </h1>
+            <div className="hero-pressure-wrap" aria-label="Learning by building small, useful projects.">
+              <div className="hero-pressure-line">
+                <TextPressure
+                  text="LEARNING BY"
+                  flex={false}
+                  alpha={false}
+                  stroke={false}
+                  width={false}
+                  weight
+                  italic
+                  textColor="#ffffff"
+                  strokeColor="#5227FF"
+                  minFontSize={52}
+                />
+              </div>
+              <div className="hero-pressure-line">
+                <TextPressure
+                  text="BUILDING SMALL, USEFUL PROJECTS."
+                  flex={false}
+                  alpha={false}
+                  stroke={false}
+                  width={false}
+                  weight
+                  italic
+                  textColor="#ffffff"
+                  strokeColor="#5227FF"
+                  minFontSize={52}
+                />
+              </div>
+            </div>
             <p className="hero-lead">
               I am a beginner who loves to explore software, solve problems, and improve with every project.
             </p>
             <div className="hero-cta">
-              <GlassSurface
-                width={148}
-                height={58}
-                borderRadius={999}
-                displace={0.45}
-                distortionScale={-145}
-                brightness={86}
-                opacity={0.98}
-                blur={13}
-                backgroundOpacity={0.28}
-                saturation={1.16}
-                className="hero-glass-btn hero-glass-btn--primary"
+              <StarBorder
+                as="a"
+                href="#projects"
+                onClick={handleNavClick('projects')}
+                className="hero-star-btn hero-star-btn--primary"
+                color="#c084fc"
+                speed="5s"
               >
-                <a className="btn btn-glass" href="#projects" onClick={handleNavClick('projects')}>
-                  View Projects
-                </a>
-              </GlassSurface>
-              <GlassSurface
-                width={148}
-                height={58}
-                borderRadius={999}
-                displace={0.42}
-                distortionScale={-175}
-                brightness={18}
-                opacity={0.9}
-                blur={12}
-                backgroundOpacity={0.14}
-                saturation={1.2}
-                mixBlendMode="screen"
-                className="hero-glass-btn hero-glass-btn--ghost"
+                View Projects
+              </StarBorder>
+              <StarBorder
+                as="a"
+                href="#contact"
+                onClick={handleNavClick('contact')}
+                className="hero-star-btn hero-star-btn--ghost"
+                color="#8b5cf6"
+                speed="5s"
               >
-                <a className="btn btn-glass" href="#contact" onClick={handleNavClick('contact')}>
-                  Let&apos;s Talk
-                </a>
-              </GlassSurface>
+                Let&apos;s Talk
+              </StarBorder>
             </div>
             <div className="hero-stats">
               <div>
@@ -472,8 +623,22 @@ function App() {
 
         <section className="feature-rail" id="work">
           <div className="section-header" data-reveal>
-            <p className="eyebrow">Focus Areas</p>
-            <h2>What I&apos;m practicing right now.</h2>
+            <div className="text-pressure-wrap work-title-pressure" aria-label="Focus Areas">
+              <TextPressure
+                text="FOCUS AREAS"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={false}
+                weight
+                italic
+                textColor="#ffffff"
+                strokeColor="#5227FF"
+                minFontSize={36}
+                uppercase={false}
+              />
+            </div>
+            <p className="work-subtitle">What I&apos;m practicing right now.</p>
           </div>
           <div className="feature-grid">
             {featureCards.map((card, index) => (
@@ -499,8 +664,22 @@ function App() {
 
         <section className="process" id="process">
           <div className="section-header" data-reveal>
-            <p className="eyebrow">Workflow</p>
-            <h2>Simple steps I follow while learning.</h2>
+            <div className="text-pressure-wrap work-title-pressure" aria-label="Workflow">
+              <TextPressure
+                text="WORKFLOW"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={false}
+                weight
+                italic
+                textColor="#ffffff"
+                strokeColor="#5227FF"
+                minFontSize={36}
+                uppercase={false}
+              />
+            </div>
+            <p className="work-subtitle">Simple steps I follow while learning.</p>
           </div>
           <div className="process-grid">
             {processSteps.map((step, index) => (
@@ -525,35 +704,117 @@ function App() {
           </div>
         </section>
 
+        <section className="skills-section" id="skills">
+          <div className="section-header skills-header" data-reveal>
+            <p className="eyebrow">Skills</p>
+            <div className="text-pressure-wrap skills-title-pressure" aria-label="Skills">
+              <TextPressure
+                text="SKILLS"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={false}
+                weight
+                italic
+                textColor="#ffffff"
+                strokeColor="#5227FF"
+                minFontSize={36}
+                uppercase={false}
+              />
+            </div>
+            <p className="skills-subtitle">The weapons I wield to build, ship, and solve.</p>
+          </div>
+
+          {skillGroups.map((group, groupIndex) => (
+            <div className="skills-group" key={group.title} data-reveal data-delay={groupIndex * 80}>
+              <h3 className="skills-group-title">{group.title}</h3>
+              <div className="skills-grid">
+                {group.items.map((item) => (
+                  <article className="skill-card" key={item.name}>
+                    <img src={item.logo} alt={item.name} loading="lazy" width={28} height={28} />
+                    <span>{item.name}</span>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+
         <section className="projects" id="projects">
           <div className="section-header" data-reveal>
-            <p className="eyebrow">Projects</p>
-            <h2>Small builds that helped me learn.</h2>
+            <div className="text-pressure-wrap work-title-pressure" aria-label="Projects">
+              <TextPressure
+                text="PROJECTS"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={false}
+                weight
+                italic
+                textColor="#ffffff"
+                strokeColor="#5227FF"
+                minFontSize={36}
+                uppercase={false}
+              />
+            </div>
+            <p className="work-subtitle">Small builds that helped me learn.</p>
           </div>
           <div className="projects-grid">
             {projects.map((project, index) => (
-              <article key={project.title} className="project-card" data-reveal data-delay={index * 100}>
-                <div className="project-meta">
-                  {project.tags.map((tag) => (
-                    <span className="project-tag" key={tag}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <h3>{project.title}</h3>
-                <p>{project.description}</p>
-                <a className="project-link" href={project.link} target="_blank" rel="noopener noreferrer">
-                  {project.label}
-                </a>
-              </article>
+              <div key={project.title} className="tilted-project-wrap" data-reveal data-delay={index * 100}>
+                <TiltedCard
+                  imageSrc={transparentPixel}
+                  altText={project.title}
+                  captionText={project.title}
+                  containerHeight="100%"
+                  containerWidth="100%"
+                  imageHeight="100%"
+                  imageWidth="100%"
+                  rotateAmplitude={16}
+                  scaleOnHover={1.06}
+                  showMobileWarning={false}
+                  showTooltip={false}
+                  displayOverlayContent
+                  overlayContent={
+                    <article className="project-card tilted-project-content">
+                      <div className="project-meta">
+                        {project.tags.map((tag) => (
+                          <span className="project-tag" key={tag}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <h3>{project.title}</h3>
+                      <p>{project.description}</p>
+                      <a className="project-link" href={project.link} target="_blank" rel="noopener noreferrer">
+                        {project.label}
+                      </a>
+                    </article>
+                  }
+                />
+              </div>
             ))}
           </div>
         </section>
 
         <section className="contact" id="contact">
           <div className="section-header" data-reveal>
-            <p className="eyebrow">Contact</p>
-            <h2>Let&apos;s build something simple together.</h2>
+            <div className="text-pressure-wrap work-title-pressure" aria-label="Contact">
+              <TextPressure
+                text="CONTACT"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={false}
+                weight
+                italic
+                textColor="#ffffff"
+                strokeColor="#5227FF"
+                minFontSize={36}
+                uppercase={false}
+              />
+            </div>
+            <p className="work-subtitle">Let&apos;s build something simple together.</p>
           </div>
           <div className="contact-grid">
             <div className="contact-card" data-reveal>
