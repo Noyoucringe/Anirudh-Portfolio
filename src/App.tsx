@@ -63,7 +63,7 @@ const skillGroups = [
     title: 'Design & Content',
     items: [
       { name: 'Figma', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg' },
-      { name: 'Canva', logo: '/canva-logo.svg' },
+      { name: 'Canva', logo: '/canva-logo-v2.svg' },
     ],
   },
 ];
@@ -121,9 +121,25 @@ const navItems = [
   { label: 'CONTACT', href: '#contact' },
 ];
 
+const navItemsCompact = [
+  { label: 'FOCUS', href: '#work' },
+  { label: 'FLOW', href: '#process' },
+  { label: 'SKILLS', href: '#skills' },
+  { label: 'PROJECTS', href: '#projects' },
+  { label: 'CONTACT', href: '#contact' },
+];
+
 const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
 type FormStatus = 'idle' | 'sending' | 'success' | 'error';
+type ContactFormValues = { name: string; email: string; message: string };
+type ContactFormErrors = Partial<Record<keyof ContactFormValues, string>>;
+
+const initialContactFormValues: ContactFormValues = {
+  name: '',
+  email: '',
+  message: '',
+};
 
 function usePrefersReducedMotion(): boolean {
   const [prefers, setPrefers] = useState(false);
@@ -138,6 +154,21 @@ function usePrefersReducedMotion(): boolean {
   }, []);
 
   return prefers;
+}
+
+function useCompactNavLabels(): boolean {
+  const [compact, setCompact] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 900px)');
+    const update = () => setCompact(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener('change', update);
+    return () => mediaQuery.removeEventListener('change', update);
+  }, []);
+
+  return compact;
 }
 
 function useScrollVariables(prefersReducedMotion: boolean) {
@@ -301,14 +332,28 @@ function useCursorGlow(prefersReducedMotion: boolean) {
 
 function App() {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const useCompactLabels = useCompactNavLabels();
   const heroRef = useRef<HTMLElement>(null);
 
   useScrollVariables(prefersReducedMotion);
   useRevealAnimations(prefersReducedMotion);
 
   const [formStatus, setFormStatus] = useState<FormStatus>('idle');
+  const [formValues, setFormValues] = useState<ContactFormValues>(initialContactFormValues);
+  const [formTouched, setFormTouched] = useState<Record<keyof ContactFormValues, boolean>>({
+    name: false,
+    email: false,
+    message: false,
+  });
+  const [formErrors, setFormErrors] = useState<ContactFormErrors>({});
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const [activeNavIndex, setActiveNavIndex] = useState(0);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
+
+  const navItemsForDisplay = useMemo(
+    () => (useCompactLabels ? navItemsCompact : navItems),
+    [useCompactLabels]
+  );
 
   const scrollBehavior: ScrollBehavior = useMemo(
     () => (prefersReducedMotion ? 'auto' : 'smooth'),
@@ -392,6 +437,57 @@ function App() {
     };
   }, []);
 
+  const validateField = (field: keyof ContactFormValues, value: string): string => {
+    const trimmed = value.trim();
+
+    if (field === 'name') {
+      if (trimmed.length < 2) return 'Please enter at least 2 characters.';
+      return '';
+    }
+
+    if (field === 'email') {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return 'Please enter a valid email address.';
+      return '';
+    }
+
+    if (field === 'message') {
+      if (trimmed.length < 12) return 'Message should be at least 12 characters.';
+      return '';
+    }
+
+    return '';
+  };
+
+  const validateAllFields = (values: ContactFormValues): ContactFormErrors => {
+    const nextErrors: ContactFormErrors = {};
+
+    (Object.keys(values) as Array<keyof ContactFormValues>).forEach((field) => {
+      const error = validateField(field, values[field]);
+      if (error) {
+        nextErrors[field] = error;
+      }
+    });
+
+    return nextErrors;
+  };
+
+  const handleFieldChange = (field: keyof ContactFormValues) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const nextValue = event.target.value;
+
+    setFormValues((prev) => ({ ...prev, [field]: nextValue }));
+
+    if (formTouched[field] || submitAttempted) {
+      const nextError = validateField(field, nextValue);
+      setFormErrors((prev) => ({ ...prev, [field]: nextError || undefined }));
+    }
+  };
+
+  const handleFieldBlur = (field: keyof ContactFormValues) => () => {
+    setFormTouched((prev) => ({ ...prev, [field]: true }));
+    const nextError = validateField(field, formValues[field]);
+    setFormErrors((prev) => ({ ...prev, [field]: nextError || undefined }));
+  };
+
   const handlePillNavSelect = (index: number, href: string, event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     setActiveNavIndex(index);
@@ -405,8 +501,20 @@ function App() {
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
+    setSubmitAttempted(true);
+
+    const nextErrors = validateAllFields(formValues);
+    setFormErrors(nextErrors);
+    setFormTouched({ name: true, email: true, message: true });
+
+    if (Object.keys(nextErrors).length > 0) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', formValues.name.trim());
+    formData.append('email', formValues.email.trim());
+    formData.append('message', formValues.message.trim());
 
     setFormStatus('sending');
 
@@ -422,7 +530,10 @@ function App() {
       }
 
       setFormStatus('success');
-      form.reset();
+      setFormValues(initialContactFormValues);
+      setFormTouched({ name: false, email: false, message: false });
+      setFormErrors({});
+      setSubmitAttempted(false);
       setTimeout(() => setFormStatus('idle'), 2500);
     } catch (error) {
       console.error(error);
@@ -431,12 +542,19 @@ function App() {
     }
   };
 
-  const statusMessage = useMemo(() => {
-    if (formStatus === 'sending') return 'Sending...';
-    if (formStatus === 'success') return 'Message sent successfully.';
-    if (formStatus === 'error') return 'Message failed. Please try again.';
-    return '';
-  }, [formStatus]);
+  const hasClientValidationErrors = submitAttempted && Object.keys(formErrors).length > 0;
+
+  const statusMeta = useMemo(() => {
+    if (hasClientValidationErrors) {
+      return { tone: 'error', message: 'Please fix the highlighted fields before sending.' };
+    }
+    if (formStatus === 'sending') return { tone: 'sending', message: 'Sending...' };
+    if (formStatus === 'success') return { tone: 'success', message: 'Message sent successfully.' };
+    if (formStatus === 'error') return { tone: 'error', message: 'Message failed. Please try again.' };
+    return { tone: 'idle', message: '' };
+  }, [formStatus, hasClientValidationErrors]);
+
+  const currentSectionLabel = navItems[activeNavIndex]?.label ?? 'FOCUS AREAS';
 
   return (
     <>
@@ -485,7 +603,7 @@ function App() {
         <PillNav
           logo="/logo-mark.svg"
           logoAlt="Meghamsh Anirudh Logo"
-          items={navItems}
+          items={navItemsForDisplay}
           activeHref={navItems[activeNavIndex]?.href}
           className="custom-nav"
           ease="power2.easeOut"
@@ -494,14 +612,26 @@ function App() {
           hoveredPillTextColor="#ffffff"
           pillTextColor="#000000"
           initialLoadAnimation={false}
+          reducedMotion={prefersReducedMotion}
           onItemSelect={handlePillNavSelect}
         />
       </header>
 
+      <div className="section-chip" aria-live="polite">
+        <span className="section-chip-label" key={currentSectionLabel}>
+          {currentSectionLabel}
+        </span>
+      </div>
+
+      <div className="section-progress-rail" aria-hidden="true">
+        <span className="section-progress-fill" />
+        <span className="section-progress-dot" />
+      </div>
+
       <main>
         <section className="hero" id="top" ref={heroRef}>
           <div className="hero-content" data-reveal>
-            <p className="eyebrow">Student Developer</p>
+            <p className="eyebrow hero-eyebrow">HI, I&apos;M MEGHAMSH ANIRUDH.</p>
             <div className="hero-pressure-wrap" aria-label="Learning by building small, useful projects.">
               <div className="hero-pressure-line">
                 <TextPressure
@@ -515,6 +645,7 @@ function App() {
                   textColor="#ffffff"
                   strokeColor="#5227FF"
                   minFontSize={52}
+                  reducedMotion={prefersReducedMotion}
                 />
               </div>
               <div className="hero-pressure-line">
@@ -529,6 +660,7 @@ function App() {
                   textColor="#ffffff"
                   strokeColor="#5227FF"
                   minFontSize={52}
+                  reducedMotion={prefersReducedMotion}
                 />
               </div>
             </div>
@@ -623,7 +755,7 @@ function App() {
 
         <section className="feature-rail" id="work">
           <div className="section-header" data-reveal>
-            <div className="text-pressure-wrap work-title-pressure" aria-label="Focus Areas">
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Focus Areas">
               <TextPressure
                 text="FOCUS AREAS"
                 flex={false}
@@ -636,9 +768,10 @@ function App() {
                 strokeColor="#5227FF"
                 minFontSize={36}
                 uppercase={false}
+                reducedMotion={prefersReducedMotion}
               />
             </div>
-            <p className="work-subtitle">What I&apos;m practicing right now.</p>
+            <p className="section-subtitle">What I&apos;m practicing right now.</p>
           </div>
           <div className="feature-grid">
             {featureCards.map((card, index) => (
@@ -664,7 +797,7 @@ function App() {
 
         <section className="process" id="process">
           <div className="section-header" data-reveal>
-            <div className="text-pressure-wrap work-title-pressure" aria-label="Workflow">
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Workflow">
               <TextPressure
                 text="WORKFLOW"
                 flex={false}
@@ -677,9 +810,10 @@ function App() {
                 strokeColor="#5227FF"
                 minFontSize={36}
                 uppercase={false}
+                reducedMotion={prefersReducedMotion}
               />
             </div>
-            <p className="work-subtitle">Simple steps I follow while learning.</p>
+            <p className="section-subtitle">Simple steps I follow while learning.</p>
           </div>
           <div className="process-grid">
             {processSteps.map((step, index) => (
@@ -705,9 +839,8 @@ function App() {
         </section>
 
         <section className="skills-section" id="skills">
-          <div className="section-header skills-header" data-reveal>
-            <p className="eyebrow">Skills</p>
-            <div className="text-pressure-wrap skills-title-pressure" aria-label="Skills">
+          <div className="section-header" data-reveal>
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Skills">
               <TextPressure
                 text="SKILLS"
                 flex={false}
@@ -720,17 +853,25 @@ function App() {
                 strokeColor="#5227FF"
                 minFontSize={36}
                 uppercase={false}
+                reducedMotion={prefersReducedMotion}
               />
             </div>
-            <p className="skills-subtitle">The weapons I wield to build, ship, and solve.</p>
+            <p className="section-subtitle">The weapons I wield to build, ship, and solve.</p>
           </div>
 
           {skillGroups.map((group, groupIndex) => (
-            <div className="skills-group" key={group.title} data-reveal data-delay={groupIndex * 80}>
-              <h3 className="skills-group-title">{group.title}</h3>
+            <div className="skills-group" key={group.title}>
+              <h3 className="skills-group-title" data-reveal data-delay={groupIndex * 120}>
+                {group.title}
+              </h3>
               <div className="skills-grid">
-                {group.items.map((item) => (
-                  <article className="skill-card" key={item.name}>
+                {group.items.map((item, itemIndex) => (
+                  <article
+                    className="skill-card"
+                    key={item.name}
+                    data-reveal
+                    data-delay={groupIndex * 120 + 90 + itemIndex * 40}
+                  >
                     <img src={item.logo} alt={item.name} loading="lazy" width={28} height={28} />
                     <span>{item.name}</span>
                   </article>
@@ -742,7 +883,7 @@ function App() {
 
         <section className="projects" id="projects">
           <div className="section-header" data-reveal>
-            <div className="text-pressure-wrap work-title-pressure" aria-label="Projects">
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Projects">
               <TextPressure
                 text="PROJECTS"
                 flex={false}
@@ -755,9 +896,10 @@ function App() {
                 strokeColor="#5227FF"
                 minFontSize={36}
                 uppercase={false}
+                reducedMotion={prefersReducedMotion}
               />
             </div>
-            <p className="work-subtitle">Small builds that helped me learn.</p>
+            <p className="section-subtitle">Small builds that helped me learn.</p>
           </div>
           <div className="projects-grid">
             {projects.map((project, index) => (
@@ -799,7 +941,7 @@ function App() {
 
         <section className="contact" id="contact">
           <div className="section-header" data-reveal>
-            <div className="text-pressure-wrap work-title-pressure" aria-label="Contact">
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Contact">
               <TextPressure
                 text="CONTACT"
                 flex={false}
@@ -812,13 +954,24 @@ function App() {
                 strokeColor="#5227FF"
                 minFontSize={36}
                 uppercase={false}
+                reducedMotion={prefersReducedMotion}
               />
             </div>
-            <p className="work-subtitle">Let&apos;s build something simple together.</p>
+            <p className="section-subtitle">Let&apos;s build something simple together.</p>
           </div>
           <div className="contact-grid">
             <div className="contact-card" data-reveal>
-              <p className="contact-lead">I am available for internships and beginner-friendly collaborations.</p>
+              <p className="contact-kicker">Available for internships and entry-level collaborations</p>
+              <p className="contact-lead">Let&apos;s turn your idea into a clean and reliable build.</p>
+              <div className="contact-cta-row">
+                <a className="btn primary" href="mailto:anirudhbittu77@gmail.com">
+                  Email Me
+                </a>
+                <a className="btn ghost" href="/Anirudh_Resume.pdf" download>
+                  Download Resume
+                </a>
+              </div>
+              <p className="contact-trust-line">Usually replies within 24 hours. Open to remote opportunities.</p>
               <div className="contact-links">
                 <a href="mailto:anirudhbittu77@gmail.com">anirudhbittu77@gmail.com</a>
                 <a href="tel:+918639206379">+91 8639206379</a>
@@ -832,28 +985,82 @@ function App() {
                 >
                   LinkedIn Profile
                 </a>
-                <a href="/Anirudh_Resume.pdf" download>
-                  Download Resume
-                </a>
               </div>
             </div>
-            <form className="contact-form" data-reveal data-delay={150} onSubmit={handleFormSubmit}>
-              <div className="form-row">
+            <form className="contact-form" data-reveal data-delay={150} onSubmit={handleFormSubmit} noValidate>
+              <div className={`form-row ${formErrors.name ? 'has-error' : formTouched.name && formValues.name.trim() ? 'has-success' : ''}`}>
                 <label htmlFor="name">Name</label>
-                <input id="name" type="text" name="name" placeholder="Enter your name" required />
+                <input
+                  id="name"
+                  type="text"
+                  name="name"
+                  placeholder="Enter your name"
+                  value={formValues.name}
+                  onChange={handleFieldChange('name')}
+                  onBlur={handleFieldBlur('name')}
+                  aria-invalid={Boolean(formErrors.name)}
+                  aria-describedby={formErrors.name ? 'name-error' : undefined}
+                  required
+                />
+                {formErrors.name && (
+                  <span className="form-error" id="name-error">
+                    {formErrors.name}
+                  </span>
+                )}
               </div>
-              <div className="form-row">
+              <div className={`form-row ${formErrors.email ? 'has-error' : formTouched.email && formValues.email.trim() ? 'has-success' : ''}`}>
                 <label htmlFor="email">Email</label>
-                <input id="email" type="email" name="email" placeholder="Enter your email" required />
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={formValues.email}
+                  onChange={handleFieldChange('email')}
+                  onBlur={handleFieldBlur('email')}
+                  aria-invalid={Boolean(formErrors.email)}
+                  aria-describedby={formErrors.email ? 'email-error' : undefined}
+                  required
+                />
+                {formErrors.email && (
+                  <span className="form-error" id="email-error">
+                    {formErrors.email}
+                  </span>
+                )}
               </div>
-              <div className="form-row">
+              <div className={`form-row ${formErrors.message ? 'has-error' : formTouched.message && formValues.message.trim() ? 'has-success' : ''}`}>
                 <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" placeholder="Tell me about your project" rows={5} required />
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="Tell me about your project"
+                  rows={5}
+                  value={formValues.message}
+                  onChange={handleFieldChange('message')}
+                  onBlur={handleFieldBlur('message')}
+                  aria-invalid={Boolean(formErrors.message)}
+                  aria-describedby={formErrors.message ? 'message-error' : undefined}
+                  required
+                />
+                {formErrors.message && (
+                  <span className="form-error" id="message-error">
+                    {formErrors.message}
+                  </span>
+                )}
               </div>
               <button type="submit" className="btn primary" disabled={formStatus === 'sending'}>
                 {formStatus === 'sending' ? 'Sending...' : 'Send Message'}
               </button>
-              <div className="form-status">{statusMessage}</div>
+              <div className={`form-status ${statusMeta.tone !== 'idle' ? `is-${statusMeta.tone}` : ''}`}>
+                {statusMeta.tone === 'success' && (
+                  <span className="status-check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 12.5L10 17L19 8" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                )}
+                {statusMeta.message}
+              </div>
             </form>
           </div>
         </section>

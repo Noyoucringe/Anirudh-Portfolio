@@ -20,6 +20,7 @@ export interface PillNavProps {
   hoveredPillTextColor?: string;
   pillTextColor?: string;
   initialLoadAnimation?: boolean;
+  reducedMotion?: boolean;
   onItemSelect?: (index: number, href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
@@ -35,6 +36,7 @@ const PillNav: React.FC<PillNavProps> = ({
   hoveredPillTextColor = '#ffffff',
   pillTextColor,
   initialLoadAnimation = true,
+  reducedMotion = false,
   onItemSelect,
 }) => {
   const resolvedPillTextColor = pillTextColor ?? baseColor;
@@ -47,6 +49,14 @@ const PillNav: React.FC<PillNavProps> = ({
   const logoRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
+    if (reducedMotion) {
+      const navItemsNode = navItemsRef.current;
+      if (navItemsNode) {
+        gsap.set(navItemsNode, { clearProps: 'all' });
+      }
+      return;
+    }
+
     const layout = () => {
       circleRefs.current.forEach((circle, index) => {
         if (!circle?.parentElement) return;
@@ -126,9 +136,10 @@ const PillNav: React.FC<PillNavProps> = ({
     }
 
     return () => window.removeEventListener('resize', onResize);
-  }, [items, ease, initialLoadAnimation]);
+  }, [items, ease, initialLoadAnimation, reducedMotion]);
 
   const handleEnter = (i: number) => {
+    if (reducedMotion) return;
     const tl = tlRefs.current[i];
     if (!tl) return;
     activeTweenRefs.current[i]?.kill();
@@ -140,6 +151,7 @@ const PillNav: React.FC<PillNavProps> = ({
   };
 
   const handleLeave = (i: number) => {
+    if (reducedMotion) return;
     const tl = tlRefs.current[i];
     if (!tl) return;
     activeTweenRefs.current[i]?.kill();
@@ -151,6 +163,7 @@ const PillNav: React.FC<PillNavProps> = ({
   };
 
   const handleLogoEnter = () => {
+    if (reducedMotion) return;
     const img = logoImgRef.current;
     if (!img) return;
     logoTweenRef.current?.kill();

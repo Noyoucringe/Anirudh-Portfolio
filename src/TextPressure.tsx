@@ -17,6 +17,7 @@ interface TextPressureProps {
   minFontSize?: number;
   uppercase?: boolean;
   nowrap?: boolean;
+  reducedMotion?: boolean;
 }
 
 const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => {
@@ -57,6 +58,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
   minFontSize = 24,
   uppercase = true,
   nowrap = true,
+  reducedMotion = false,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement | null>(null);
@@ -72,6 +74,10 @@ const TextPressure: React.FC<TextPressureProps> = ({
   const chars = text.split('');
 
   useEffect(() => {
+    if (reducedMotion) {
+      return;
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
       cursorRef.current.x = e.clientX;
       cursorRef.current.y = e.clientY;
@@ -98,7 +104,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [reducedMotion]);
 
   const setSize = useCallback(() => {
     if (!containerRef.current || !titleRef.current) return;
@@ -132,6 +138,17 @@ const TextPressure: React.FC<TextPressureProps> = ({
   }, [setSize]);
 
   useEffect(() => {
+    if (reducedMotion) {
+      spansRef.current.forEach((span) => {
+        if (!span) return;
+        span.style.fontVariationSettings = "'wght' 700, 'wdth' 100, 'ital' 0";
+        if (alpha) {
+          span.style.opacity = '1';
+        }
+      });
+      return;
+    }
+
     let rafId: number;
     const animate = () => {
       mouseRef.current.x += (cursorRef.current.x - mouseRef.current.x) / 15;
@@ -173,7 +190,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
     animate();
     return () => cancelAnimationFrame(rafId);
-  }, [width, weight, italic, alpha]);
+  }, [width, weight, italic, alpha, reducedMotion]);
 
   const styleElement = useMemo(() => {
     return (
@@ -259,6 +276,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
             style={{
               display: 'inline-block',
               minWidth: char === ' ' ? '0.42em' : undefined,
+              fontVariationSettings: reducedMotion ? "'wght' 700, 'wdth' 100, 'ital' 0" : undefined,
               color: stroke ? undefined : textColor,
             }}
           >
