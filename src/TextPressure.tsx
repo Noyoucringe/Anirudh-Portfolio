@@ -15,6 +15,7 @@ interface TextPressureProps {
   strokeColor?: string;
   className?: string;
   minFontSize?: number;
+  sizeMode?: 'fit-text' | 'uniform';
   uppercase?: boolean;
   nowrap?: boolean;
   reducedMotion?: boolean;
@@ -56,6 +57,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
   strokeColor = '#FF0000',
   className = '',
   minFontSize = 24,
+  sizeMode = 'fit-text',
   uppercase = true,
   nowrap = true,
   reducedMotion = false,
@@ -111,8 +113,16 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
     const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
 
-    let newFontSize = containerW / (chars.length / 2);
-    newFontSize = Math.max(newFontSize, minFontSize);
+    let newFontSize = minFontSize;
+    if (sizeMode === 'fit-text') {
+      newFontSize = containerW / (chars.length / 2);
+      newFontSize = Math.max(newFontSize, minFontSize);
+    } else {
+      // Keep headings single-line by treating minFontSize as a target maximum.
+      const widthFitSize = containerW / Math.max(chars.length * 0.52, 1);
+      const heightFitSize = containerH * 0.88;
+      newFontSize = Math.min(minFontSize, widthFitSize * 0.96, heightFitSize);
+    }
 
     setFontSize(newFontSize);
     setScaleY(1);
@@ -128,7 +138,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
         setLineHeight(yRatio);
       }
     });
-  }, [chars.length, minFontSize, scale]);
+  }, [chars.length, minFontSize, scale, sizeMode]);
 
   useEffect(() => {
     const debouncedSetSize = debounce(setSize, 100);

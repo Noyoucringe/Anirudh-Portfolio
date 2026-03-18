@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Beams from './Beams';
 import ClickSpark from './ClickSpark';
 import GlareHover from './GlareHover';
@@ -70,7 +70,7 @@ const skillGroups = [
 
 const projects = [
   {
-    title: 'TriviaChamp – Quiz Application',
+    title: 'TriviaChamp ΓÇô Quiz Application',
     description: 'OOP-based quiz application with modular classes for questions, scoring, and user interaction.',
     tags: ['Java', 'OOP'],
     link: 'https://triviachamp.onrender.com/',
@@ -113,10 +113,45 @@ const projects = [
   },
 ];
 
+type CodingPlatform = 'codeforces' | 'leetcode' | 'codechef';
+type CodingStatus = 'unconfigured' | 'loading' | 'ready' | 'error';
+type CodingBadgeTone = 'green' | 'amber' | 'red' | 'blue' | 'orange' | 'slate';
+
+type CodingBadge = {
+  label: string;
+  value: string;
+  tone: CodingBadgeTone;
+};
+
+type CodingProfile = {
+  key: CodingPlatform;
+  platform: string;
+  handle: string;
+  iconUrl: string;
+  profileUrl: string;
+  primaryLabel: string;
+  primaryValue: string;
+  progress: number;
+  badges: CodingBadge[];
+  status: CodingStatus;
+  error?: string;
+  updatedAt?: string;
+};
+
+const codingHandles: Record<CodingPlatform, string> = {
+  codeforces: 'anirudh_7109',
+  leetcode: 'Anirudh_7109',
+  codechef: 'worth_poem_59',
+};
+
+const codingRefreshIntervalMs = 1000 * 60 * 5;
+const codingPlatformsDisplay: CodingPlatform[] = ['leetcode', 'codeforces', 'codechef'];
+
 const navItems = [
   { label: 'FOCUS AREAS', href: '#work' },
   { label: 'WORKFLOW', href: '#process' },
   { label: 'SKILLS', href: '#skills' },
+  { label: 'CODING', href: '#coding' },
   { label: 'PROJECTS', href: '#projects' },
   { label: 'CONTACT', href: '#contact' },
 ];
@@ -125,6 +160,7 @@ const navItemsCompact = [
   { label: 'FOCUS', href: '#work' },
   { label: 'FLOW', href: '#process' },
   { label: 'SKILLS', href: '#skills' },
+  { label: 'CODE', href: '#coding' },
   { label: 'PROJECTS', href: '#projects' },
   { label: 'CONTACT', href: '#contact' },
 ];
@@ -140,6 +176,345 @@ const initialContactFormValues: ContactFormValues = {
   email: '',
   message: '',
 };
+
+const codingPlatformMeta: Record<CodingPlatform, { title: string; website: string; iconUrl: string }> = {
+  codeforces: {
+    title: 'Codeforces',
+    website: 'https://codeforces.com',
+    iconUrl: 'https://cdn.simpleicons.org/codeforces/FFFFFF',
+  },
+  leetcode: {
+    title: 'LeetCode',
+    website: 'https://leetcode.com',
+    iconUrl: 'https://cdn.simpleicons.org/leetcode/FFA116',
+  },
+  codechef: {
+    title: 'CodeChef',
+    website: 'https://www.codechef.com',
+    iconUrl: 'https://cdn.simpleicons.org/codechef/FFFFFF',
+  },
+};
+
+function formatNumber(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return '--';
+  return value.toLocaleString('en-US');
+}
+
+function formatWhole(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return '--';
+  return Math.round(value).toLocaleString('en-US');
+}
+
+function formatPlusCount(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return '--';
+  return `${Math.max(0, Math.round(value)).toLocaleString('en-US')}+`;
+}
+
+function asTitleCase(value: string | undefined): string {
+  if (!value) return '--';
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function clampProgress(value: number | null, maxValue: number): number {
+  if (value === null || Number.isNaN(value) || maxValue <= 0) return 0;
+  return Math.max(0, Math.min(1, value / maxValue));
+}
+
+function parseNumericValue(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value.replace(/,/g, '').trim());
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+}
+
+function getValueByPath(data: unknown, path: string): unknown {
+  if (!data || typeof data !== 'object') return undefined;
+
+  return path.split('.').reduce<unknown>((acc, key) => {
+    if (!acc || typeof acc !== 'object') return undefined;
+    return (acc as Record<string, unknown>)[key];
+  }, data);
+}
+
+function getFirstNumericAtPaths(data: unknown, paths: string[]): number | null {
+  for (const path of paths) {
+    const value = parseNumericValue(getValueByPath(data, path));
+    if (value !== null) return value;
+  }
+  return null;
+}
+
+async function fetchJson(url: string): Promise<unknown> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status})`);
+  }
+  return response.json();
+}
+
+async function fetchCodeforcesStats(handle: string): Promise<Omit<CodingProfile, 'status'>> {
+  const [userInfoRaw, submissionsRaw, ratingHistoryRaw] = await Promise.all([
+    fetchJson(`https://codeforces.com/api/user.info?handles=${encodeURIComponent(handle)}`),
+    fetchJson(`https://codeforces.com/api/user.status?handle=${encodeURIComponent(handle)}&from=1&count=10000`),
+    fetchJson(`https://codeforces.com/api/user.rating?handle=${encodeURIComponent(handle)}`),
+  ]);
+
+  const userInfo = userInfoRaw as {
+    status?: string;
+    result?: Array<{ rank?: string; maxRank?: string; rating?: number; maxRating?: number }>;
+    comment?: string;
+  };
+  const submissions = submissionsRaw as {
+    status?: string;
+    result?: Array<{ verdict?: string; problem?: { contestId?: number; index?: string; name?: string } }>;
+    comment?: string;
+  };
+  const ratingHistory = ratingHistoryRaw as {
+    status?: string;
+    result?: Array<{ contestId?: number }>;
+    comment?: string;
+  };
+
+  if (userInfo.status !== 'OK' || !userInfo.result?.length) {
+    throw new Error(userInfo.comment || 'Unable to load Codeforces profile.');
+  }
+  if (submissions.status !== 'OK') {
+    throw new Error(submissions.comment || 'Unable to load Codeforces submissions.');
+  }
+  if (ratingHistory.status !== 'OK') {
+    throw new Error(ratingHistory.comment || 'Unable to load Codeforces rating history.');
+  }
+
+  const profile = userInfo.result[0];
+  const solvedSet = new Set<string>();
+  const maxRating = profile.maxRating ?? profile.rating ?? null;
+  const contestCount = (ratingHistory.result || []).length;
+
+  (submissions.result || []).forEach((entry) => {
+    if (entry.verdict !== 'OK' || !entry.problem) return;
+    const contest = entry.problem.contestId ?? 'global';
+    const index = entry.problem.index ?? entry.problem.name ?? 'unknown';
+    solvedSet.add(`${contest}-${index}`);
+  });
+
+  const primaryLabel = maxRating !== null ? 'Max Rating' : 'Problems Solved';
+  const primaryValue = maxRating !== null ? formatWhole(maxRating) : formatNumber(solvedSet.size);
+  const progress = maxRating !== null ? clampProgress(maxRating, 3000) : clampProgress(solvedSet.size, 1200);
+
+  return {
+    key: 'codeforces',
+    platform: codingPlatformMeta.codeforces.title,
+    handle,
+    iconUrl: codingPlatformMeta.codeforces.iconUrl,
+    profileUrl: `https://codeforces.com/profile/${handle}`,
+    primaryLabel,
+    primaryValue,
+    progress,
+    badges: [
+      { label: asTitleCase(profile.rank || profile.maxRank), value: '', tone: 'blue' },
+      { label: `${formatNumber(solvedSet.size)} solved`, value: '', tone: 'green' },
+      { label: `${formatPlusCount(contestCount)} contests`, value: '', tone: 'slate' },
+    ],
+  };
+}
+
+async function fetchLeetCodeStats(handle: string): Promise<Omit<CodingProfile, 'status'>> {
+  const profileData = await fetchJson(`https://alfa-leetcode-api.onrender.com/userProfile/${encodeURIComponent(handle)}`);
+
+  const solved = getFirstNumericAtPaths(profileData, ['totalSolved', 'solvedProblem']);
+  const easySolved = getFirstNumericAtPaths(profileData, ['easySolved', 'totalSubmissions.1.count']);
+  const mediumSolved = getFirstNumericAtPaths(profileData, ['mediumSolved', 'totalSubmissions.2.count']);
+  const hardSolved = getFirstNumericAtPaths(profileData, ['hardSolved', 'totalSubmissions.3.count']);
+
+  return {
+    key: 'leetcode',
+    platform: codingPlatformMeta.leetcode.title,
+    handle,
+    iconUrl: codingPlatformMeta.leetcode.iconUrl,
+    profileUrl: `https://leetcode.com/u/${handle}/`,
+    primaryLabel: 'Problems Solved',
+    primaryValue: formatPlusCount(solved),
+    progress: clampProgress(solved, 3500),
+    badges: [
+      { label: 'Easy', value: formatWhole(easySolved), tone: 'green' },
+      { label: 'Med', value: formatWhole(mediumSolved), tone: 'amber' },
+      { label: 'Hard', value: formatWhole(hardSolved), tone: 'red' },
+    ],
+  };
+}
+
+async function fetchCodeChefStats(handle: string): Promise<Omit<CodingProfile, 'status'>> {
+  const primaryUrl = `https://competeapi.vercel.app/user/codechef/${encodeURIComponent(handle)}`;
+  const fallbackUrl = `https://codechef-api.vercel.app/handle/${encodeURIComponent(handle)}`;
+
+  let data: unknown;
+  try {
+    data = await fetchJson(primaryUrl);
+  } catch {
+    try {
+      data = await fetchJson(fallbackUrl);
+    } catch {
+      const proxiedText = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://www.codechef.com/users/${handle}`)}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Request failed (${response.status})`);
+          }
+          return response.text();
+        });
+
+      const currentRatingMatch = proxiedText.match(/\n(\d{3,4})\n\n\(Div\s*[1-5]\)/i);
+      const highestRatingMatch = proxiedText.match(/Highest Rating\s*(\d{3,5})/i);
+      const solvedMatch = proxiedText.match(/Total Problems Solved:\s*(\d+)/i);
+      const globalRankMatch = proxiedText.match(/\*\s*\[\*\*(\d+)\*\*\]\([^\)]*\)\s*Global Rank/i);
+      const contestsMatch = proxiedText.match(/No\. of Contests Participated:\s*\*\*(\d+)\*\*/i);
+
+      const currentRating = parseNumericValue(currentRatingMatch?.[1]);
+      const highestRating = parseNumericValue(highestRatingMatch?.[1]);
+      const solved = parseNumericValue(solvedMatch?.[1]);
+      const globalRank = parseNumericValue(globalRankMatch?.[1]);
+      const contests = parseNumericValue(contestsMatch?.[1]);
+
+      const effectiveRating = highestRating ?? currentRating;
+      const stars =
+        effectiveRating === null
+          ? null
+          : effectiveRating >= 2500
+            ? 7
+            : effectiveRating >= 2200
+              ? 6
+              : effectiveRating >= 2000
+                ? 5
+                : effectiveRating >= 1800
+                  ? 4
+                  : effectiveRating >= 1600
+                    ? 3
+                    : effectiveRating >= 1400
+                      ? 2
+                      : 1;
+
+      return {
+        key: 'codechef',
+        platform: codingPlatformMeta.codechef.title,
+        handle,
+        iconUrl: codingPlatformMeta.codechef.iconUrl,
+        profileUrl: `https://www.codechef.com/users/${handle}`,
+        primaryLabel: effectiveRating !== null ? 'Max Rating' : 'Problems Solved',
+        primaryValue: effectiveRating !== null ? formatWhole(effectiveRating) : formatNumber(solved),
+        progress: effectiveRating !== null ? clampProgress(effectiveRating, 3000) : clampProgress(solved, 2000),
+        badges: [
+          { label: `${formatWhole(stars)}★`, value: '', tone: 'orange' },
+          { label: `${formatPlusCount(contests)} contests`, value: '', tone: 'slate' },
+          { label: `Global ${formatNumber(globalRank)}`, value: '', tone: 'blue' },
+          { label: `Solved ${formatNumber(solved)}`, value: '', tone: 'green' },
+        ],
+      };
+    }
+  }
+
+  const rank = getFirstNumericAtPaths(data, ['rankings.global', 'globalRank', 'global_rank']);
+  const currentRating = getFirstNumericAtPaths(data, ['currentRating', 'rating', 'rating_number']);
+  const maxRating = getFirstNumericAtPaths(data, ['highestRating', 'maxRating', 'highest_rating', 'max_rank']) ?? currentRating;
+  const stars = getFirstNumericAtPaths(data, ['stars', 'starRating', 'star']);
+  const contests = getFirstNumericAtPaths(data, ['allContestCount', 'contestCount', 'contests']);
+
+  const normalizedStars =
+    stars !== null
+      ? stars
+      : maxRating === null
+        ? null
+        : maxRating >= 2500
+          ? 7
+          : maxRating >= 2200
+            ? 6
+            : maxRating >= 2000
+              ? 5
+              : maxRating >= 1800
+                ? 4
+                : maxRating >= 1600
+                  ? 3
+                  : maxRating >= 1400
+                    ? 2
+                    : 1;
+
+  return {
+    key: 'codechef',
+    platform: codingPlatformMeta.codechef.title,
+    handle,
+    iconUrl: codingPlatformMeta.codechef.iconUrl,
+    profileUrl: `https://www.codechef.com/users/${handle}`,
+    primaryLabel: 'Max Rating',
+    primaryValue: formatWhole(maxRating),
+    progress: clampProgress(maxRating, 3000),
+    badges: [
+      { label: `${formatWhole(normalizedStars)}★`, value: '', tone: 'orange' },
+      { label: `${formatPlusCount(contests)} contests`, value: '', tone: 'slate' },
+      { label: `Global ${formatNumber(rank)}`, value: '', tone: 'blue' },
+    ],
+  };
+}
+
+function createInitialCodingProfiles(): Record<CodingPlatform, CodingProfile> {
+  return {
+    codeforces: {
+      key: 'codeforces',
+      platform: codingPlatformMeta.codeforces.title,
+      handle: codingHandles.codeforces,
+      iconUrl: codingPlatformMeta.codeforces.iconUrl,
+      profileUrl: codingHandles.codeforces
+        ? `https://codeforces.com/profile/${codingHandles.codeforces}`
+        : codingPlatformMeta.codeforces.website,
+      primaryLabel: 'Max Rating',
+      primaryValue: '--',
+      progress: 0,
+      badges: [
+        { label: '--', value: '', tone: 'blue' },
+        { label: '-- contests', value: '', tone: 'slate' },
+      ],
+      status: codingHandles.codeforces ? 'loading' : 'unconfigured',
+    },
+    leetcode: {
+      key: 'leetcode',
+      platform: codingPlatformMeta.leetcode.title,
+      handle: codingHandles.leetcode,
+      iconUrl: codingPlatformMeta.leetcode.iconUrl,
+      profileUrl: codingHandles.leetcode
+        ? `https://leetcode.com/u/${codingHandles.leetcode}/`
+        : codingPlatformMeta.leetcode.website,
+      primaryLabel: 'Problems Solved',
+      primaryValue: '--',
+      progress: 0,
+      badges: [
+        { label: 'Easy', value: '--', tone: 'green' },
+        { label: 'Med', value: '--', tone: 'amber' },
+        { label: 'Hard', value: '--', tone: 'red' },
+      ],
+      status: codingHandles.leetcode ? 'loading' : 'unconfigured',
+    },
+    codechef: {
+      key: 'codechef',
+      platform: codingPlatformMeta.codechef.title,
+      handle: codingHandles.codechef,
+      iconUrl: codingPlatformMeta.codechef.iconUrl,
+      profileUrl: codingHandles.codechef
+        ? `https://www.codechef.com/users/${codingHandles.codechef}`
+        : codingPlatformMeta.codechef.website,
+      primaryLabel: 'Max Rating',
+      primaryValue: '--',
+      progress: 0,
+      badges: [
+        { label: '--★', value: '', tone: 'orange' },
+        { label: '-- contests', value: '', tone: 'slate' },
+      ],
+      status: codingHandles.codechef ? 'loading' : 'unconfigured',
+    },
+  };
+}
 
 function usePrefersReducedMotion(): boolean {
   const [prefers, setPrefers] = useState(false);
@@ -349,6 +724,15 @@ function App() {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [activeNavIndex, setActiveNavIndex] = useState(0);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [isCodingSyncing, setIsCodingSyncing] = useState(false);
+  const [codingProfiles, setCodingProfiles] = useState<Record<CodingPlatform, CodingProfile>>(
+    createInitialCodingProfiles
+  );
+  const latestCodingProfilesRef = useRef<Record<CodingPlatform, CodingProfile>>(createInitialCodingProfiles());
+
+  useEffect(() => {
+    latestCodingProfilesRef.current = codingProfiles;
+  }, [codingProfiles]);
 
   const navItemsForDisplay = useMemo(
     () => (useCompactLabels ? navItemsCompact : navItems),
@@ -498,6 +882,76 @@ function App() {
       target.scrollIntoView({ behavior: scrollBehavior });
     }
   };
+
+  const refreshCodingProfiles = useCallback(async () => {
+    setIsCodingSyncing(true);
+
+    const fetchers: Record<CodingPlatform, (handle: string) => Promise<Omit<CodingProfile, 'status'>>> = {
+      codeforces: fetchCodeforcesStats,
+      leetcode: fetchLeetCodeStats,
+      codechef: fetchCodeChefStats,
+    };
+
+    const nextProfiles = { ...latestCodingProfilesRef.current };
+
+    try {
+      await Promise.all(
+        (Object.keys(fetchers) as CodingPlatform[]).map(async (platform) => {
+          const handle = codingHandles[platform].trim();
+          if (!handle) {
+            nextProfiles[platform] = {
+              ...nextProfiles[platform],
+              status: 'unconfigured',
+              error: 'Add your handle in App.tsx to enable live stats.',
+            };
+            return;
+          }
+
+          try {
+            const data = await fetchers[platform](handle);
+            nextProfiles[platform] = {
+              ...data,
+              status: 'ready',
+              updatedAt: new Date().toISOString(),
+            };
+          } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to sync at the moment.';
+            nextProfiles[platform] = {
+              ...nextProfiles[platform],
+              handle,
+              status: 'error',
+              error: message,
+            };
+          }
+        })
+      );
+
+      setCodingProfiles(nextProfiles);
+    } finally {
+      setIsCodingSyncing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshCodingProfiles();
+
+    const interval = window.setInterval(() => {
+      void refreshCodingProfiles();
+    }, codingRefreshIntervalMs);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshCodingProfiles();
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [refreshCodingProfiles]);
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -766,8 +1220,10 @@ function App() {
                 italic
                 textColor="#ffffff"
                 strokeColor="#5227FF"
-                minFontSize={36}
+                minFontSize={150}
+                sizeMode="uniform"
                 uppercase={false}
+                nowrap
                 reducedMotion={prefersReducedMotion}
               />
             </div>
@@ -808,8 +1264,10 @@ function App() {
                 italic
                 textColor="#ffffff"
                 strokeColor="#5227FF"
-                minFontSize={36}
+                minFontSize={150}
+                sizeMode="uniform"
                 uppercase={false}
+                nowrap
                 reducedMotion={prefersReducedMotion}
               />
             </div>
@@ -851,8 +1309,10 @@ function App() {
                 italic
                 textColor="#ffffff"
                 strokeColor="#5227FF"
-                minFontSize={36}
+                minFontSize={150}
+                sizeMode="uniform"
                 uppercase={false}
+                nowrap
                 reducedMotion={prefersReducedMotion}
               />
             </div>
@@ -881,6 +1341,112 @@ function App() {
           ))}
         </section>
 
+        <section className="coding-section" id="coding">
+          <div className="section-header" data-reveal>
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Coding Profiles">
+              <TextPressure
+                text="CODING PROFILES"
+                flex={false}
+                alpha={false}
+                stroke={false}
+                width={false}
+                weight
+                italic
+                textColor="#ffffff"
+                strokeColor="#5227FF"
+                minFontSize={150}
+                sizeMode="uniform"
+                uppercase={false}
+                nowrap
+                reducedMotion={prefersReducedMotion}
+              />
+            </div>
+            <p className="section-subtitle">Live ranks and solved counts synced from my competitive coding profiles.</p>
+            <div className="coding-header-actions">
+              <button
+                type="button"
+                className="coding-sync-btn"
+                onClick={() => void refreshCodingProfiles()}
+                disabled={isCodingSyncing}
+              >
+                {isCodingSyncing ? 'Syncing...' : 'SYNC'}
+              </button>
+            </div>
+          </div>
+
+          <div className="coding-grid">
+            {codingPlatformsDisplay.map((platformKey, index) => {
+              const profile = codingProfiles[platformKey];
+              const statusLabel =
+                profile.status === 'ready'
+                  ? 'Live'
+                  : profile.status === 'loading'
+                    ? 'Syncing'
+                    : profile.status === 'error'
+                      ? 'Error'
+                      : 'Setup';
+
+              return (
+                <article className={`coding-card platform-${profile.key}`} key={platformKey} data-reveal data-delay={index * 120}>
+                  <div className="coding-card-head">
+                    <div className="coding-id-block">
+                      <img src={profile.iconUrl} alt={`${profile.platform} logo`} className="coding-platform-logo" width={36} height={36} />
+                      <div>
+                        <p className="coding-platform">{profile.platform}</p>
+                        <p className="coding-handle">{profile.handle ? `@${profile.handle}` : 'Handle not configured'}</p>
+                      </div>
+                    </div>
+                    <a
+                      href={profile.profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="coding-open-link"
+                      aria-label={`Open ${profile.platform} profile`}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 16L16 8M10 8H16V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  </div>
+
+                  <div className="coding-primary-row">
+                    <span>{profile.primaryLabel}</span>
+                    <strong>{profile.primaryValue}</strong>
+                  </div>
+
+                  <div className="coding-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(profile.progress * 100)}>
+                    <span className="coding-progress-fill" style={{ width: `${Math.max(8, Math.round(profile.progress * 100))}%` }} />
+                  </div>
+
+                  <div className="coding-badges">
+                    {profile.badges.map((badge, badgeIndex) => (
+                      <span className={`coding-badge tone-${badge.tone}`} key={`${badge.label}-${badgeIndex}`}>
+                        {badge.value ? (
+                          <>
+                            <strong>{badge.label}</strong>
+                            <em>{badge.value}</em>
+                          </>
+                        ) : (
+                          <strong>{badge.label}</strong>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="coding-meta-row">
+                    <span className={`coding-status is-${profile.status}`}>{statusLabel}</span>
+                    <span className="coding-sync-time">
+                      {profile.updatedAt ? `Synced ${new Date(profile.updatedAt).toLocaleTimeString()}` : 'Waiting for first sync'}
+                    </span>
+                  </div>
+
+                  {profile.error && <p className="coding-error">{profile.error}</p>}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
         <section className="projects" id="projects">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Projects">
@@ -894,8 +1460,10 @@ function App() {
                 italic
                 textColor="#ffffff"
                 strokeColor="#5227FF"
-                minFontSize={36}
+                minFontSize={150}
+                sizeMode="uniform"
                 uppercase={false}
+                nowrap
                 reducedMotion={prefersReducedMotion}
               />
             </div>
@@ -952,8 +1520,10 @@ function App() {
                 italic
                 textColor="#ffffff"
                 strokeColor="#5227FF"
-                minFontSize={36}
+                minFontSize={150}
+                sizeMode="uniform"
                 uppercase={false}
+                nowrap
                 reducedMotion={prefersReducedMotion}
               />
             </div>
@@ -1074,7 +1644,7 @@ function App() {
           </a>
           .
         </p>
-        <p>© 2026, Designed and built by ANIRUDH</p>
+        <p>┬⌐ 2026, Designed and built by ANIRUDH</p>
       </footer>
     </div>
     </ClickSpark>
