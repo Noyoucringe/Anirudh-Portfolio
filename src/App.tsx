@@ -846,14 +846,14 @@ function App() {
     const nextErrors: ContactFormErrors = {};
 
     (Object.keys(values) as Array<keyof ContactFormValues>).forEach((field) => {
-      const error = validateField(field, values[field]);
+      const error = validateField(field,values[field]);
       if (error) {
         nextErrors[field] = error;
       }
     });
 
     return nextErrors;
-  };
+  }; 
 
   const handleFieldChange = (field: keyof ContactFormValues) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const nextValue = event.target.value;
@@ -1070,7 +1070,6 @@ function App() {
           onItemSelect={handlePillNavSelect}
         />
       </header>
-
       <div className="section-chip" aria-live="polite">
         <span className="section-chip-label" key={currentSectionLabel}>
           {currentSectionLabel}
@@ -1099,12 +1098,12 @@ function App() {
                   textColor="#ffffff"
                   strokeColor="#5227FF"
                   minFontSize={52}
-                  reducedMotion={prefersReducedMotion}
+                  reducedMotion={true}
                 />
               </div>
               <div className="hero-pressure-line">
                 <TextPressure
-                  text="BUILDING SMALL, USEFUL PROJECTS."
+                  text="BUILDING CLEAN, USEFUL PROJECTS."
                   flex={false}
                   alpha={false}
                   stroke={false}
@@ -1114,7 +1113,7 @@ function App() {
                   textColor="#ffffff"
                   strokeColor="#5227FF"
                   minFontSize={52}
-                  reducedMotion={prefersReducedMotion}
+                  reducedMotion={true}
                 />
               </div>
             </div>
@@ -1232,7 +1231,7 @@ function App() {
           <div className="feature-grid">
             {featureCards.map((card, index) => (
               <GlareHover
-                key={card.title}
+                key={card.title} 
                 width="100%"
                 height="100%"
                 glareColor="#ffffff"
@@ -1527,11 +1526,11 @@ function App() {
                 reducedMotion={prefersReducedMotion}
               />
             </div>
-            <p className="section-subtitle">Let&apos;s build something simple together.</p>
+            <p className="section-subtitle">Let&apos;s build something clean together.</p>
           </div>
           <div className="contact-grid">
             <div className="contact-card" data-reveal>
-              <p className="contact-kicker">Available for internships and entry-level collaborations</p>
+              <p className="contact-kicker">Available for internships and collaborations</p>
               <p className="contact-lead">Let&apos;s turn your idea into a clean and reliable build.</p>
               <div className="contact-cta-row">
                 <a className="btn primary" href="mailto:anirudhbittu77@gmail.com">
@@ -1541,7 +1540,7 @@ function App() {
                   Download Resume
                 </a>
               </div>
-              <p className="contact-trust-line">Usually replies within 24 hours. Open to remote opportunities.</p>
+              <p className="contact-trust-line">I usually reply within 24 hours. Open for On-site or Hybrid opportunities.</p>
               <div className="contact-links">
                 <a href="mailto:anirudhbittu77@gmail.com">anirudhbittu77@gmail.com</a>
                 <a href="tel:+918639206379">+91 8639206379</a>
