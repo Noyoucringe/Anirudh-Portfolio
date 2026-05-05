@@ -7,7 +7,8 @@ import PillNav from './PillNav';
 import GradualBlur from './GradualBlur';
 import StarBorder from './StarBorder';
 import TiltedCard from './TiltedCard';
-import TextPressure from './TextPressure';
+import { Text_03 } from './Text_03';
+import BorderGlow from './BorderGlow';
 import './ShinyText.css';
 
 const featureCards = [
@@ -70,7 +71,7 @@ const skillGroups = [
 
 const projects = [
   {
-    title: 'TriviaChamp ΓÇô Quiz Application',
+    title: 'TriviaChamp - Quiz Application',
     description: 'OOP-based quiz application with modular classes for questions, scoring, and user interaction.',
     tags: ['Java', 'OOP'],
     link: 'https://triviachamp.onrender.com/',
@@ -113,6 +114,39 @@ const projects = [
   },
 ];
 
+const certifications = [
+  {
+    title: 'AWS Certified Cloud Practitioner',
+    issuer: 'Amazon Web Services (AWS)',
+    issued: 'Feb 2026',
+    expires: 'Feb 2029',
+    credentialId: null,
+    skills: ['Cloud Foundations', 'Cloud Applications'],
+    link: 'https://www.credly.com/badges/0315afe9-f5f3-4ff1-94d5-ca71104e0cee/public_url',
+    logo: '/AWSLOGO.webp',
+  },
+  {
+    title: 'GitHub Foundations',
+    issuer: 'GitHub',
+    issued: 'Feb 2026',
+    expires: 'Feb 2028',
+    credentialId: '91F58703F2FF5440',
+    skills: ['Git'],
+    link: 'https://learn.microsoft.com/en-us/users/meghamshanirudhpulivendala-7498/credentials/91f58703f2ff5440?ref=https%3A%2F%2Fwww.linkedin.com%2F',
+    logo: '/githublogo.webp',
+  },
+  {
+    title: 'Advanced Automation Professional',
+    issuer: 'Automation Anywhere',
+    issued: 'Dec 2025',
+    expires: null,
+    credentialId: 'AAADVC2024A360 - 170458608',
+    skills: ['Automation'],
+    link: 'https://certificates.automationanywhere.com/26f1acf4-a1ef-4c78-b6fb-26ff30ec19a9#acc.9IRtFoBc',
+    logo: '/AUTOLOGO.jpg',
+  },
+];
+
 type CodingPlatform = 'codeforces' | 'leetcode' | 'codechef';
 type CodingStatus = 'unconfigured' | 'loading' | 'ready' | 'error';
 type CodingBadgeTone = 'green' | 'amber' | 'red' | 'blue' | 'orange' | 'slate';
@@ -152,6 +186,7 @@ const navItems = [
   { label: 'WORKFLOW', href: '#process' },
   { label: 'SKILLS', href: '#skills' },
   { label: 'CODING', href: '#coding' },
+  { label: 'CERTIFICATIONS', href: '#certifications' },
   { label: 'PROJECTS', href: '#projects' },
   { label: 'CONTACT', href: '#contact' },
 ];
@@ -161,6 +196,7 @@ const navItemsCompact = [
   { label: 'FLOW', href: '#process' },
   { label: 'SKILLS', href: '#skills' },
   { label: 'CODE', href: '#coding' },
+  { label: 'CERTS', href: '#certifications' },
   { label: 'PROJECTS', href: '#projects' },
   { label: 'CONTACT', href: '#contact' },
 ];
@@ -1086,37 +1122,9 @@ function App() {
         <section className="hero" id="top" ref={heroRef}>
           <div className="hero-content" data-reveal>
             <p className="eyebrow hero-eyebrow">HI, I&apos;M MEGHAMSH ANIRUDH.</p>
-            <div className="hero-pressure-wrap" aria-label="Learning by building small, useful projects.">
-              <div className="hero-pressure-line">
-                <TextPressure
-                  text="LEARNING BY"
-                  flex={false}
-                  alpha={false}
-                  stroke={false}
-                  width={false}
-                  weight
-                  italic
-                  textColor="#ffffff"
-                  strokeColor="#5227FF"
-                  minFontSize={52}
-                  reducedMotion={prefersReducedMotion}
-                />
-              </div>
-              <div className="hero-pressure-line">
-                <TextPressure
-                  text="BUILDING SMALL, USEFUL PROJECTS."
-                  flex={false}
-                  alpha={false}
-                  stroke={false}
-                  width={false}
-                  weight
-                  italic
-                  textColor="#ffffff"
-                  strokeColor="#5227FF"
-                  minFontSize={52}
-                  reducedMotion={prefersReducedMotion}
-                />
-              </div>
+            <div className="hero-headline-wrap" aria-label="Learning by building clean projects.">
+              <Text_03 text="LEARNING BY" className="hero-animated-title hero-headline hero-headline-primary" />
+              <Text_03 text="BUILDING CLEAN PROJECTS" className="hero-animated-title hero-headline hero-headline-secondary" />
             </div>
             <p className="hero-lead">
               I am a beginner who loves to explore software, solve problems, and improve with every project.
@@ -1210,22 +1218,7 @@ function App() {
         <section className="feature-rail" id="work">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Focus Areas">
-              <TextPressure
-                text="FOCUS AREAS"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={false}
-                weight
-                italic
-                textColor="#ffffff"
-                strokeColor="#5227FF"
-                minFontSize={150}
-                sizeMode="uniform"
-                uppercase={false}
-                nowrap
-                reducedMotion={prefersReducedMotion}
-              />
+              <Text_03 text="FOCUS AREAS" className="section-animated-title" />
             </div>
             <p className="section-subtitle">What I&apos;m practicing right now.</p>
           </div>
@@ -1254,22 +1247,7 @@ function App() {
         <section className="process" id="process">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Workflow">
-              <TextPressure
-                text="WORKFLOW"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={false}
-                weight
-                italic
-                textColor="#ffffff"
-                strokeColor="#5227FF"
-                minFontSize={150}
-                sizeMode="uniform"
-                uppercase={false}
-                nowrap
-                reducedMotion={prefersReducedMotion}
-              />
+              <Text_03 text="WORKFLOW" className="section-animated-title" />
             </div>
             <p className="section-subtitle">Simple steps I follow while learning.</p>
           </div>
@@ -1299,22 +1277,7 @@ function App() {
         <section className="skills-section" id="skills">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Skills">
-              <TextPressure
-                text="SKILLS"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={false}
-                weight
-                italic
-                textColor="#ffffff"
-                strokeColor="#5227FF"
-                minFontSize={150}
-                sizeMode="uniform"
-                uppercase={false}
-                nowrap
-                reducedMotion={prefersReducedMotion}
-              />
+              <Text_03 text="SKILLS" className="section-animated-title" />
             </div>
             <p className="section-subtitle">The weapons I wield to build, ship, and solve.</p>
           </div>
@@ -1344,22 +1307,7 @@ function App() {
         <section className="coding-section" id="coding">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Coding Profiles">
-              <TextPressure
-                text="CODING PROFILES"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={false}
-                weight
-                italic
-                textColor="#ffffff"
-                strokeColor="#5227FF"
-                minFontSize={150}
-                sizeMode="uniform"
-                uppercase={false}
-                nowrap
-                reducedMotion={prefersReducedMotion}
-              />
+              <Text_03 text="CODING PROFILES" className="section-animated-title" />
             </div>
             <p className="section-subtitle">Live ranks and solved counts synced from my competitive coding profiles.</p>
             <div className="coding-header-actions">
@@ -1387,85 +1335,158 @@ function App() {
                       : 'Setup';
 
               return (
-                <article className={`coding-card platform-${profile.key}`} key={platformKey} data-reveal data-delay={index * 120}>
-                  <div className="coding-card-head">
-                    <div className="coding-id-block">
-                      <img src={profile.iconUrl} alt={`${profile.platform} logo`} className="coding-platform-logo" width={36} height={36} />
+                <BorderGlow
+                  key={platformKey}
+                  className={`coding-glow platform-${profile.key}`}
+                  edgeSensitivity={15}
+                  glowColor="40 80 80"
+                  backgroundColor="#120F17"
+                  borderRadius={24}
+                  glowRadius={36}
+                  glowIntensity={1}
+                  coneSpread={25}
+                  animated={false}
+                  colors={['#c084fc', '#f472b6', '#38bdf8']}
+                >
+                  <article className="coding-card" data-reveal data-delay={index * 120}>
+                    <div className="coding-card-head">
+                      <div className="coding-id-block">
+                        <img src={profile.iconUrl} alt={`${profile.platform} logo`} className="coding-platform-logo" width={36} height={36} />
+                        <div>
+                          <p className="coding-platform">{profile.platform}</p>
+                          <p className="coding-handle">{profile.handle ? `@${profile.handle}` : 'Handle not configured'}</p>
+                        </div>
+                      </div>
+                      <a
+                        href={profile.profileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="coding-open-link"
+                        aria-label={`Open ${profile.platform} profile`}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8 16L16 8M10 8H16V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </a>
+                    </div>
+
+                    <div className="coding-primary-row">
+                      <span>{profile.primaryLabel}</span>
+                      <strong>{profile.primaryValue}</strong>
+                    </div>
+
+                    <div className="coding-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(profile.progress * 100)}>
+                      <span className="coding-progress-fill" style={{ width: `${Math.max(8, Math.round(profile.progress * 100))}%` }} />
+                    </div>
+
+                    <div className="coding-badges">
+                      {profile.badges.map((badge, badgeIndex) => (
+                        <span className={`coding-badge tone-${badge.tone}`} key={`${badge.label}-${badgeIndex}`}>
+                          {badge.value ? (
+                            <>
+                              <strong>{badge.label}</strong>
+                              <em>{badge.value}</em>
+                            </>
+                          ) : (
+                            <strong>{badge.label}</strong>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="coding-meta-row">
+                      <span className={`coding-status is-${profile.status}`}>{statusLabel}</span>
+                      <span className="coding-sync-time">
+                        {profile.updatedAt ? `Synced ${new Date(profile.updatedAt).toLocaleTimeString()}` : 'Waiting for first sync'}
+                      </span>
+                    </div>
+
+                    {profile.error && <p className="coding-error">{profile.error}</p>}
+                  </article>
+                </BorderGlow>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="certifications-section" id="certifications">
+          <div className="section-header" data-reveal>
+            <div className="text-pressure-wrap section-title-pressure" aria-label="Certifications">
+              <Text_03 text="CERTIFICATIONS" className="section-animated-title" />
+            </div>
+            <p className="section-subtitle">Verified credentials</p>
+          </div>
+
+          <div className="certifications-grid">
+            {certifications.map((cert, index) => (
+              <BorderGlow
+                key={cert.title}
+                className="cert-glow"
+                edgeSensitivity={15}
+                glowColor="40 80 80"
+                backgroundColor="#120F17"
+                borderRadius={24}
+                glowRadius={36}
+                glowIntensity={1}
+                coneSpread={25}
+                animated={false}
+                colors={['#c084fc', '#f472b6', '#38bdf8']}
+              >
+                <article className="cert-card" data-reveal data-delay={index * 120}>
+                  <div className="cert-card-head">
+                    <div className="cert-id">
+                      <img src={cert.logo} alt={`${cert.issuer} logo`} width={36} height={36} loading="lazy" />
                       <div>
-                        <p className="coding-platform">{profile.platform}</p>
-                        <p className="coding-handle">{profile.handle ? `@${profile.handle}` : 'Handle not configured'}</p>
+                        <p className="cert-title">{cert.title}</p>
+                        <p className="cert-issuer">{cert.issuer}</p>
                       </div>
                     </div>
                     <a
-                      href={profile.profileUrl}
+                      className="cert-verify-link"
+                      href={cert.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="coding-open-link"
-                      aria-label={`Open ${profile.platform} profile`}
+                      aria-label={`Verify ${cert.title}`}
                     >
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 16L16 8M10 8H16V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      Show credential
+                      <span aria-hidden="true">↗</span>
                     </a>
                   </div>
 
-                  <div className="coding-primary-row">
-                    <span>{profile.primaryLabel}</span>
-                    <strong>{profile.primaryValue}</strong>
+                  <div className="cert-meta">
+                    <div>
+                      <span className="cert-meta-label">Issued</span>
+                      <strong>{cert.issued}</strong>
+                    </div>
+                    <div>
+                      <span className="cert-meta-label">Expires</span>
+                      <strong>{cert.expires ?? 'Dec 2027'}</strong>
+                    </div>
+                    {cert.credentialId && (
+                      <div>
+                        <span className="cert-meta-label">Credential ID</span>
+                        <strong>{cert.credentialId}</strong>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="coding-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(profile.progress * 100)}>
-                    <span className="coding-progress-fill" style={{ width: `${Math.max(8, Math.round(profile.progress * 100))}%` }} />
-                  </div>
-
-                  <div className="coding-badges">
-                    {profile.badges.map((badge, badgeIndex) => (
-                      <span className={`coding-badge tone-${badge.tone}`} key={`${badge.label}-${badgeIndex}`}>
-                        {badge.value ? (
-                          <>
-                            <strong>{badge.label}</strong>
-                            <em>{badge.value}</em>
-                          </>
-                        ) : (
-                          <strong>{badge.label}</strong>
-                        )}
+                  <div className="cert-skills">
+                    {cert.skills.map((skill) => (
+                      <span className="cert-skill" key={skill}>
+                        {skill}
                       </span>
                     ))}
                   </div>
-
-                  <div className="coding-meta-row">
-                    <span className={`coding-status is-${profile.status}`}>{statusLabel}</span>
-                    <span className="coding-sync-time">
-                      {profile.updatedAt ? `Synced ${new Date(profile.updatedAt).toLocaleTimeString()}` : 'Waiting for first sync'}
-                    </span>
-                  </div>
-
-                  {profile.error && <p className="coding-error">{profile.error}</p>}
                 </article>
-              );
-            })}
+              </BorderGlow>
+            ))}
           </div>
         </section>
 
         <section className="projects" id="projects">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Projects">
-              <TextPressure
-                text="PROJECTS"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={false}
-                weight
-                italic
-                textColor="#ffffff"
-                strokeColor="#5227FF"
-                minFontSize={150}
-                sizeMode="uniform"
-                uppercase={false}
-                nowrap
-                reducedMotion={prefersReducedMotion}
-              />
+              <Text_03 text="PROJECTS" className="section-animated-title" />
             </div>
             <p className="section-subtitle">Small builds that helped me learn.</p>
           </div>
@@ -1510,28 +1531,13 @@ function App() {
         <section className="contact" id="contact">
           <div className="section-header" data-reveal>
             <div className="text-pressure-wrap section-title-pressure" aria-label="Contact">
-              <TextPressure
-                text="CONTACT"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={false}
-                weight
-                italic
-                textColor="#ffffff"
-                strokeColor="#5227FF"
-                minFontSize={150}
-                sizeMode="uniform"
-                uppercase={false}
-                nowrap
-                reducedMotion={prefersReducedMotion}
-              />
+              <Text_03 text="CONTACT" className="section-animated-title" />
             </div>
-            <p className="section-subtitle">Let&apos;s build something simple together.</p>
+            <p className="section-subtitle">Let&apos;s build something clean together.</p>
           </div>
           <div className="contact-grid">
             <div className="contact-card" data-reveal>
-              <p className="contact-kicker">Available for internships and entry-level collaborations</p>
+              <p className="contact-kicker">Available for internships and collaborations</p>
               <p className="contact-lead">Let&apos;s turn your idea into a clean and reliable build.</p>
               <div className="contact-cta-row">
                 <a className="btn primary" href="mailto:anirudhbittu77@gmail.com">
@@ -1541,7 +1547,7 @@ function App() {
                   Download Resume
                 </a>
               </div>
-              <p className="contact-trust-line">Usually replies within 24 hours. Open to remote opportunities.</p>
+              <p className="contact-trust-line">I usually replies within 24 hours. Open to On-site & Hybrid opportunities.</p>
               <div className="contact-links">
                 <a href="mailto:anirudhbittu77@gmail.com">anirudhbittu77@gmail.com</a>
                 <a href="tel:+918639206379">+91 8639206379</a>
@@ -1637,14 +1643,53 @@ function App() {
       </main>
 
       <footer className="site-footer">
-        <p>
-          More projects on{' '}
-          <a href="https://github.com/Noyoucringe" target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
-          .
-        </p>
-        <p>┬⌐ 2026, Designed and built by ANIRUDH</p>
+        <div className="footer-top">
+          <div className="footer-title">ANIRUDH'S PORTFOLIO</div>
+          <div className="footer-socials">
+            <a
+              href="https://www.linkedin.com/in/meghamsh-anirudh-pulivendala-02b371276/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="footer-social"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.15 1.45-2.15 2.95v5.66H9.3V9h3.4v1.56h.05c.47-.9 1.62-1.85 3.34-1.85 3.58 0 4.24 2.36 4.24 5.43v6.31zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"
+                />
+              </svg>
+            </a>
+            <a
+              href="https://github.com/Noyoucringe"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="footer-social"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M12 2C6.48 2 2 6.6 2 12.26c0 4.5 2.87 8.32 6.84 9.67.5.1.68-.22.68-.49 0-.24-.01-.88-.01-1.73-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.1-1.49-1.1-1.49-.9-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.9 1.58 2.36 1.12 2.94.86.09-.67.35-1.12.63-1.38-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.04 1.03-2.76-.1-.26-.45-1.3.1-2.7 0 0 .84-.27 2.75 1.05.8-.23 1.65-.34 2.5-.34s1.7.12 2.5.34c1.9-1.32 2.75-1.05 2.75-1.05.55 1.4.2 2.44.1 2.7.64.72 1.03 1.64 1.03 2.76 0 3.93-2.34 4.8-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.26C22 6.6 17.52 2 12 2z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div className="footer-divider" aria-hidden="true" />
+
+        <div className="footer-bottom">
+          <div className="footer-copy">
+            <p>© 2026 Meghamsh Anirudh</p>
+            <span>All rights reserved</span>
+          </div>
+          <div className="footer-links">
+            <a href="#projects" onClick={handleNavClick('projects')}>Projects</a>
+            <a href="#work" onClick={handleNavClick('work')}>Focus Areas</a>
+            <a href="#contact" onClick={handleNavClick('contact')}>Contact</a>
+          </div>
+        </div>
       </footer>
     </div>
     </ClickSpark>

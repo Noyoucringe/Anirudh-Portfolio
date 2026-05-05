@@ -4,6 +4,7 @@ interface TextPressureProps {
   text?: string;
   fontFamily?: string;
   fontUrl?: string;
+  fixedFontSize?: number | string;
   width?: boolean;
   weight?: boolean;
   italic?: boolean;
@@ -46,6 +47,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
   text = 'Compressa',
   fontFamily = 'Compressa VF',
   fontUrl = 'https://res.cloudinary.com/dr6lvwubh/raw/upload/v1529908256/CompressaPRO-GX.woff2',
+  fixedFontSize,
   width = true,
   weight = true,
   italic = true,
@@ -109,6 +111,14 @@ const TextPressure: React.FC<TextPressureProps> = ({
   }, [reducedMotion]);
 
   const setSize = useCallback(() => {
+    if (fixedFontSize !== undefined) {
+      if (typeof fixedFontSize === 'number') {
+        setFontSize(fixedFontSize);
+      }
+      setScaleY(1);
+      setLineHeight(1);
+      return;
+    }
     if (!containerRef.current || !titleRef.current) return;
 
     const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
@@ -141,11 +151,17 @@ const TextPressure: React.FC<TextPressureProps> = ({
   }, [chars.length, minFontSize, scale, sizeMode]);
 
   useEffect(() => {
+    if (fixedFontSize !== undefined) {
+      if (typeof fixedFontSize === 'number') {
+        setFontSize(fixedFontSize);
+      }
+      return undefined;
+    }
     const debouncedSetSize = debounce(setSize, 100);
     debouncedSetSize();
     window.addEventListener('resize', debouncedSetSize);
     return () => window.removeEventListener('resize', debouncedSetSize);
-  }, [setSize]);
+  }, [fixedFontSize, setSize]);
 
   useEffect(() => {
     if (reducedMotion) {
@@ -264,7 +280,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
         style={{
           fontFamily,
           textTransform: uppercase ? 'uppercase' : 'none',
-          fontSize,
+          fontSize: fixedFontSize ?? fontSize,
           lineHeight,
           transform: `scale(1, ${scaleY})`,
           transformOrigin: 'center top',
