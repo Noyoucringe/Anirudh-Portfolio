@@ -1127,7 +1127,7 @@ function App() {
               <Text_03 text="BUILDING CLEAN PROJECTS" className="hero-animated-title hero-headline hero-headline-secondary" />
             </div>
             <p className="hero-lead">
-              I am a beginner who loves to explore software, solve problems, and improve with every project.
+              Computer Science undergraduate focused on <em>full-stack development</em>, <em>AI</em>, and <em>problem solving</em>. Built <em>scalable web apps</em> and <em>API-driven systems</em> using React, Node.js, Java, and Python. Strong in <em>OOP</em>, <em>cloud computing</em>, and <em>machine learning fundamentals</em> with internship experience in software development and AI/ML. Always exploring modern tech to build practical projects with real-world impact.
             </p>
             <div className="hero-cta">
               <StarBorder
@@ -1543,11 +1543,11 @@ function App() {
                 <a className="btn primary" href="mailto:anirudhbittu77@gmail.com">
                   Email Me
                 </a>
-                <a className="btn ghost" href="/Anirudh_Resume.pdf" download>
+                <a className="btn ghost" href="/ANIRUDH'S%20RESUME.pdf" download>
                   Download Resume
                 </a>
               </div>
-              <p className="contact-trust-line">I usually replies within 24 hours. Open to On-site & Hybrid opportunities.</p>
+              <p className="contact-trust-line">I usually reply within 24 hours. Open to On-site & Hybrid opportunities.</p>
               <div className="contact-links">
                 <a href="mailto:anirudhbittu77@gmail.com">anirudhbittu77@gmail.com</a>
                 <a href="tel:+918639206379">+91 8639206379</a>

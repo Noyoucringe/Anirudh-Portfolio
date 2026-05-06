@@ -445,7 +445,7 @@ section {
 }
 
 .hero-content {
-  max-width: 920px;
+  max-width: 1040px;
 }
 
 .eyebrow {
@@ -513,10 +513,17 @@ section {
 }
 
 .hero-lead {
-  font-size: 1.12rem;
+  font-size: 1.22rem;
   color: var(--text-secondary);
-  max-width: 34rem;
-  line-height: var(--lh-subtitle);
+  max-width: 56rem;
+  line-height: 1.85;
+  margin-top: 1.8rem;
+}
+
+.hero-lead em {
+  color: #ffffff;
+  font-style: italic;
+  font-weight: 600;
 }
 
 .hero-cta {
