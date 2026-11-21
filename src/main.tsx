@@ -1,15 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
+const root = document.getElementById('root');
+if (!root) throw new Error('Portfolio mount point missing.');
 
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
+const portfolio = (
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
 );
+if (root.hasChildNodes()) {
+  hydrateRoot(root, portfolio);
+} else {
+  createRoot(root).render(portfolio);
+}

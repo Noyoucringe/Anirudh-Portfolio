@@ -1,0 +1,433 @@
+.site-header {
+  position: fixed;
+  z-index: 20;
+  inset: 0 0 auto;
+  color: #f7f8fa;
+  background: var(--night);
+  border-bottom: 1px solid #ffffff12;
+  transition:
+    background var(--short),
+    box-shadow var(--short);
+}
+.site-header.solid {
+  background: rgb(11 13 18 / 96%);
+  box-shadow: 0 1px 12px #00000014;
+}
+@supports (backdrop-filter: blur(12px)) {
+  .site-header.solid {
+    background: rgb(11 13 18 / 91%);
+    backdrop-filter: blur(12px);
+  }
+}
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 74px;
+  gap: 28px;
+}
+.nav-links {
+  display: flex;
+  gap: clamp(18px, 2.5vw, 42px);
+  align-items: center;
+}
+.nav-links a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 490;
+  color: #c8cdd7;
+  transition: color var(--short);
+}
+.nav-links a:hover {
+  color: white;
+}
+.nav-links .nav-resume {
+  color: #f5f6fa;
+  margin-left: 8px;
+  gap: 8px;
+  border: 1px solid #424650;
+  border-radius: 7px;
+  padding: 0 16px;
+  min-height: 38px;
+}
+.nav-resume .arrow {
+  width: 15px;
+}
+.menu-toggle {
+  display: none;
+}
+.hero {
+  color: #f7f8fa;
+  background: var(--night);
+  padding-top: 74px;
+  overflow: clip;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.04fr 1fr;
+  align-items: center;
+  gap: clamp(16px, 2.8vw, 48px);
+  min-height: clamp(530px, 68svh, 740px);
+  padding-block: clamp(48px, 6.2vh, 88px);
+}
+.hero-copy,
+.study {
+  min-width: 0;
+}
+.intro-label {
+  color: #bdc6df;
+  animation: settle 0.65s var(--ease) both;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(4rem, 7.3vw, 7rem);
+  font-weight: 605;
+  letter-spacing: -0.068em;
+  line-height: 1.055;
+  margin: 25px 0 22px;
+}
+.mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.05em 0.11em;
+  margin-block: -0.05em -0.11em;
+}
+.mask > span {
+  display: block;
+  animation: unmask 0.82s var(--ease) both;
+}
+.mask:last-child > span {
+  color: var(--accent-light);
+  animation-delay: 90ms;
+}
+.hero-summary {
+  color: #c0c5d1;
+  max-width: 43ch;
+  font-size: clamp(1rem, 1.18vw, 1.125rem);
+  line-height: 1.65;
+  animation: settle 0.72s 0.16s var(--ease) both;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  animation: settle 0.72s 0.24s var(--ease) both;
+}
+.study {
+  position: relative;
+  animation: study-in 0.9s 0.12s var(--ease) both;
+}
+.study-plate {
+  position: relative;
+  isolation: isolate;
+  pointer-events: none;
+}
+.study-plate::before {
+  position: absolute;
+  z-index: -1;
+  inset: -8% -10%;
+  content: '';
+  background: radial-gradient(ellipse, #20336b42, transparent 66%);
+}
+.study-plate::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-image:
+    linear-gradient(#889abe0f 1px, transparent 1px),
+    linear-gradient(90deg, #889abe0f 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse, black 11%, #000a 50%, transparent 78%);
+}
+.study-art {
+  width: 100%;
+  aspect-ratio: 960 / 850;
+  position: relative;
+}
+.sculpture {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.32s var(--ease);
+}
+.sculpture.ghost {
+  opacity: 0.08;
+}
+.sculpture.wire {
+  opacity: 0;
+}
+.sculpture.wire.shown {
+  opacity: 1;
+}
+.contour-fallback {
+  position: absolute;
+  inset: 20% 22%;
+  transform: rotate(-27deg);
+  border-radius: 40% 60% 35% 65%;
+  background: repeating-radial-gradient(
+    ellipse at 40% 60%,
+    #112055 0 6px,
+    #637dda 7px 9px,
+    #1c2950 10px 14px
+  );
+}
+.plate-cross {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  color: #515a70;
+}
+.plate-cross::before,
+.plate-cross::after {
+  content: '';
+  position: absolute;
+  height: 1px;
+  width: 100%;
+  top: 50%;
+  background: currentColor;
+}
+.plate-cross::after {
+  rotate: 90deg;
+}
+.cross-a {
+  top: 7%;
+  left: 3%;
+}
+.cross-b {
+  right: 2%;
+  bottom: 8%;
+}
+.axis-indicator {
+  position: absolute;
+  bottom: 8%;
+  left: 4%;
+  width: 24px;
+  height: 24px;
+}
+.axis-indicator i,
+.axis-indicator b,
+.axis-indicator em {
+  position: absolute;
+  width: 1px;
+  height: 15px;
+  background: #526078;
+  transform-origin: bottom;
+}
+.axis-indicator b {
+  rotate: 118deg;
+}
+.axis-indicator em {
+  rotate: -118deg;
+}
+.study-caption {
+  margin: 0 4%;
+  padding: 13px 0 0;
+  border-top: 1px solid #292f3c;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  color: #aab4cb;
+  font: 0.75rem/1.5 var(--mono);
+}
+.study-controls {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: #11151f;
+  border: 1px solid #303645;
+  border-radius: 6px;
+}
+.study-controls button {
+  background: transparent;
+  border: 0;
+  padding: 5px 9px;
+  color: #aeb7c9;
+  font: inherit;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+.study-controls button[aria-pressed='true'] {
+  background: #2c3549;
+  color: white;
+}
+.study-controls button:disabled {
+  cursor: default;
+}
+.hero-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #292c35;
+  min-height: 62px;
+  color: #b5bbc9;
+  font: 400 0.77rem/1.5 var(--mono);
+}
+.hero-foot > * {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  min-height: 40px;
+}
+.hero-foot svg {
+  width: 15px;
+  height: 15px;
+}
+.hero-foot span svg {
+  fill: none;
+  stroke: #9baaf2;
+  stroke-width: 1.5;
+}
+@keyframes unmask {
+  from {
+    transform: translateY(115%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes settle {
+  from {
+    opacity: 0.15;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes study-in {
+  from {
+    opacity: 0.3;
+    transform: translateY(10px) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (min-width: 741px) and (max-width: 1000px) {
+  .hero-actions .action {
+    padding-inline: 13px;
+    gap: 9px;
+  }
+  .hero h1 {
+    font-size: clamp(3.85rem, 7.6vw, 4.9rem);
+  }
+  .hero-grid {
+    gap: 12px;
+  }
+  .study-caption {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 740px) {
+  .nav-bar {
+    min-height: 61px;
+  }
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: transparent;
+    border: 1px solid #434956;
+    border-radius: 6px;
+    min-height: 40px;
+    padding: 0 12px;
+    font: 500 0.875rem var(--display);
+  }
+  .menu-toggle span {
+    font: 500 1.1rem var(--body);
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    inset: 100% 0 auto;
+    padding: 12px var(--gutter) 20px;
+    background: #11151e;
+    border-bottom: 1px solid #394050;
+    box-shadow: 0 12px 22px #0003;
+  }
+  .nav-links.is-open {
+    display: grid;
+    gap: 2px;
+  }
+  .nav-links a {
+    min-height: 44px;
+    padding-inline: 8px;
+  }
+  .nav-links .nav-resume {
+    margin: 6px 0 0;
+    width: fit-content;
+    min-height: 44px;
+  }
+  .hero {
+    padding-top: 61px;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-block: 52px 24px;
+    gap: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(3.3rem, 13.9vw, 5.6rem);
+    margin: 20px 0;
+  }
+  .hero-summary {
+    max-width: 46ch;
+  }
+  .hero-actions {
+    margin-top: 23px;
+    gap: 10px;
+  }
+  .study {
+    width: min(100%, 420px);
+    justify-self: center;
+  }
+  .study-art {
+    aspect-ratio: 1.55;
+  }
+  .study-caption {
+    margin-inline: 1%;
+    padding-top: 9px;
+  }
+  .hero-foot {
+    min-height: 52px;
+  }
+}
+@media (max-width: 360px) {
+  .nav-bar {
+    gap: 10px;
+  }
+  .nav-bar .wordmark {
+    gap: 7px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  .nav-bar .brand-mark {
+    width: 29px;
+  }
+  .hero-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hero-grid {
+    padding-top: 38px;
+  }
+  .hero-actions .action {
+    padding-inline: 5px;
+    font-size: 0.875rem;
+    gap: 6px;
+  }
+  .hero-foot {
+    font-size: 0.75rem;
+  }
+}

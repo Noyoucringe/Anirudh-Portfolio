@@ -1,0 +1,30 @@
+:root {
+  --night: #0b0d12;
+  --night-raised: #151923;
+  --paper: #f7f8fa;
+  --white: #fff;
+  --ink: #17191f;
+  --muted: #586270;
+  --on-dark-muted: #b1b7c6;
+  --accent: #5e7bff;
+  --accent-light: #a4b3ff;
+  --accent-ink: #4057bb;
+  --accent-soft: #e7ecff;
+  --border: #dbe0e7;
+  --dark-border: #2d323d;
+  --display: 'Manrope Variable', Arial, sans-serif;
+  --body: 'Inter Variable', Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-6: 3rem;
+  --space-8: 4rem;
+  --section-space: clamp(5rem, 8vw, 8rem);
+  --gutter: clamp(1.25rem, 5.3vw, 5.25rem);
+  --content: 80rem;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --short: 220ms;
+  --radius: 1rem;
+}
