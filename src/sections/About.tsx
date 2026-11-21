@@ -44,7 +44,7 @@ export default function About() {
     >
       <div className="container">
         <p className="instrument-label">Engineering approach</p>
-        <h2>my workflow</h2>
+        <h2>My Workflow</h2>
         <div className="process-bench">
           <div
             className="process-switch"
@@ -65,7 +65,7 @@ export default function About() {
           <div className="process-result" aria-live="polite">
             <SceneSlot
               kind="method"
-              label="Engineering process"
+              label="Verification plotter"
               stage={phase}
               onSelect={setPhase}
             />
@@ -77,7 +77,7 @@ export default function About() {
           <h3>Tools I use</h3>
           <SceneSlot
             kind="skills"
-            label="Technology clusters"
+            label="Engineering multitool"
             stage={skill}
             onSelect={setSkill}
           />

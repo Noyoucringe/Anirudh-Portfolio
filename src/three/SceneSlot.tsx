@@ -25,11 +25,12 @@ export default function SceneSlot({
         }
       }}
     >
-      <div className="scene-blueprint" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-      </div>
+      <img
+        className="scene-blueprint"
+        src={'/art/' + (kind === 'method' ? 'plotter' : 'multitool') + '.webp'}
+        alt=""
+        loading="lazy"
+      />
       <span className="scene-caption">{label}</span>
       <div className="orbit-buttons" aria-label="Rotate view">
         {[-1, 1].map((d) => (

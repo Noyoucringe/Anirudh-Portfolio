@@ -1,66 +1,16 @@
 import * as T from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import gsap from 'gsap';
+import { createStudy } from './sculptures';
 
 const ids = ['home', 'sentinelai', 'winfix', 'qwen'];
 const names = [
-  'Optical encoder',
-  'Event perimeter',
-  'Diagnostic channels',
-  'Adapter layers',
+  'Knowledge Atlas',
+  'Signal shield',
+  'Modular system',
+  'Attention study',
 ];
-const count = 36;
-const tau = 2 * Math.PI;
-
-// Each machined vane survives all four configurations.
-function layout(stage: number, i: number, selection: number) {
-  const a = (i * tau) / count,
-    bank = Math.floor(i / 6),
-    n = i % 6;
-  switch (stage) {
-    case 0:
-      return [
-        1.32 * Math.cos(a),
-        1.32 * Math.sin(a),
-        0.17 * Math.sin(2 * a),
-        0.24,
-        0.5,
-        a - 0.33,
-        1,
-      ];
-    case 1:
-      return [
-        1.65 * Math.cos(a),
-        1.65 * Math.sin(a),
-        0.16 * Math.cos(a * 3),
-        0.55,
-        0.12,
-        a + (i % 12 === (selection % 3) * 4 ? 0.5 : 0.06),
-        0.69,
-      ];
-    case 2:
-      return [
-        (n - 2.5) * 0.53,
-        (bank - 2.5) * 0.37,
-        bank === selection ? 0.38 : 0,
-        0.15,
-        0.08,
-        Math.PI / 2,
-        0.54,
-      ];
-    default:
-      return [
-        ((n % 3) - 1) * 0.82 + (selection === 5 ? (n < 3 ? -0.43 : 0.43) : 0),
-        (bank - 2.5) * 0.4,
-        (n < 3 ? -0.34 : 0.34) + (bank === selection ? 0.16 : 0),
-        1.3,
-        0.07,
-        0,
-        0.74,
-      ];
-  }
-}
-
+const kinds = ['atlas', 'sentinel', 'architecture', 'layers'] as const;
 export function mountInstrument(host: HTMLElement) {
   const narrative = host.closest<HTMLElement>('.story')!;
   const surface = host.querySelector<HTMLElement>('.optics-surface')!;
@@ -70,6 +20,24 @@ export function mountInstrument(host: HTMLElement) {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const abort = new AbortController(),
     opts = { signal: abort.signal };
+  const poster = host.querySelector<HTMLImageElement>('.optics-plate')!;
+  function showPoster() {
+    const line = innerHeight * 0.34;
+    let stage = 0;
+    sections.forEach((section, i) => {
+      if (section.getBoundingClientRect().top <= line) stage = i;
+    });
+    const url = '/art/' + kinds[stage] + '.webp';
+    if (poster.getAttribute('src') !== url) poster.src = url;
+    caption.textContent = names[stage];
+    surface.setAttribute('aria-label', names[stage] + ' sculpture.');
+  }
+  function followWithPoster() {
+    delete host.dataset.ready;
+    showPoster();
+    window.addEventListener('scroll', showPoster, { ...opts, passive: true });
+    window.addEventListener('resize', showPoster, opts);
+  }
   let renderer: T.WebGLRenderer;
   try {
     renderer = new T.WebGLRenderer({
@@ -78,7 +46,8 @@ export function mountInstrument(host: HTMLElement) {
       powerPreference: 'low-power',
     });
   } catch {
-    return;
+    followWithPoster();
+    return () => abort.abort();
   }
   const scene = new T.Scene(),
     camera = new T.PerspectiveCamera(35, 1, 0.1, 50);
@@ -86,65 +55,47 @@ export function mountInstrument(host: HTMLElement) {
     baker = new T.PMREMGenerator(renderer),
     env = baker.fromScene(studio, 0.025);
   scene.environment = env.texture;
-  scene.environmentIntensity = 1.25;
+  scene.environmentIntensity = 0.78;
   studio.dispose();
   baker.dispose();
   renderer.setClearColor(0, 0);
   renderer.toneMapping = T.ACESFilmicToneMapping;
   const group = new T.Group();
   scene.add(group);
-  const blade = new T.Shape();
-  blade.moveTo(-0.53, -0.055);
-  blade.bezierCurveTo(-0.35, -0.29, 0.17, -0.26, 0.58, -0.11);
-  blade.lineTo(0.69, 0.016);
-  blade.bezierCurveTo(0.23, -0.02, -0.1, 0.07, -0.44, 0.16);
-  blade.lineTo(-0.53, -0.055);
-  const geo = new T.ExtrudeGeometry(blade, {
-    depth: 0.11,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    steps: 1,
-    bevelThickness: 0.034,
-    bevelSize: 0.024,
-    curveSegments: 8,
+  const studies = {
+    atlas: createStudy('atlas'),
+    sentinel: createStudy('sentinel'),
+    layers: createStudy('layers'),
+    architecture: createStudy('architecture'),
+  };
+  Object.values(studies).forEach((study) => group.add(study.model));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = T.PCFSoftShadowMap;
+  const key = new T.DirectionalLight('#fff0d9', 1.85),
+    rim = new T.DirectionalLight('#8bb6ff', 1.05);
+  key.position.set(-2, 5, 3);
+  key.castShadow = true;
+  key.shadow.mapSize.set(512, 512);
+  Object.assign(key.shadow.camera, {
+    left: -3,
+    right: 3,
+    top: 3,
+    bottom: -3,
+    near: 0.1,
+    far: 13,
   });
-  // Unroll the curved perimeter into a flat contact pad, preserving bevel topology.
-  const positions = geo.getAttribute('position'),
-    pad = positions.clone();
-  for (let i = 0; i < pad.count; i++) {
-    const x = positions.getX(i) - 0.055,
-      y = positions.getY(i) + 0.065,
-      z = positions.getZ(i);
-    const angle = Math.atan2(y / 0.2, x / 0.63);
-    const edge = z < 0 || z > 0.11 ? 0.96 : 1;
-    pad.setXYZ(
-      i,
-      0.59 * edge * Math.sign(x) * Math.pow(Math.abs(Math.cos(angle)), 0.22),
-      0.35 * edge * Math.sign(y) * Math.pow(Math.abs(Math.sin(angle)), 0.22),
-      z,
-    );
-  }
-  geo.morphAttributes.position = [pad];
-  const mat = new T.MeshStandardMaterial({ metalness: 0.92, roughness: 0.23 });
-  const vanes = new T.InstancedMesh(geo, mat, count);
-  vanes.frustumCulled = false;
-  group.add(vanes);
-  const morph = new T.Mesh(geo, mat);
-  const collarGeo = new T.TorusGeometry(0.88, 0.028, 8, 96);
-  const collarMat = new T.MeshStandardMaterial({
-    color: '#91a4bf',
-    metalness: 0.88,
-    roughness: 0.32,
-  });
-  const collar = new T.Mesh(collarGeo, collarMat);
-  group.add(collar);
-  const key = new T.DirectionalLight('#d8edff', 3.2),
-    rim = new T.PointLight('#376dff', 29);
-  key.position.set(-3, 4, 5);
-  rim.position.set(2, -1, 2.4);
+  key.shadow.normalBias = 0.015;
+  key.shadow.bias = -0.00025;
+  key.shadow.camera.updateProjectionMatrix();
+  rim.position.set(3, 2, -3);
   scene.add(key, rim);
-  const dummy = new T.Object3D(),
-    color = new T.Color();
+  let px = 0,
+    py = 0,
+    ax = 0,
+    ay = 0,
+    orbit = 0,
+    pitch = 0,
+    lastFrame = -1;
   let extent: number[] = [],
     phase = 0,
     selection = 0,
@@ -159,34 +110,57 @@ export function mountInstrument(host: HTMLElement) {
     lost = false;
   surface.append(renderer.domElement);
   host.dataset.ready = 'true';
+  let measuredWidth = 0,
+    measuredHeight = 0,
+    measuredDpr = 0;
   function measure() {
     const { width, height } = surface.getBoundingClientRect();
-    renderer.setPixelRatio(
-      Math.min(devicePixelRatio, width < 500 ? 1.25 : 1.6),
-    );
-    renderer.setSize(width, height, false);
-    camera.aspect = width / Math.max(1, height);
-    camera.updateProjectionMatrix();
+    const dpr = Math.min(devicePixelRatio, width < 500 ? 1.25 : 1.6);
+    if (
+      width !== measuredWidth ||
+      height !== measuredHeight ||
+      dpr !== measuredDpr
+    ) {
+      measuredWidth = width;
+      measuredHeight = height;
+      measuredDpr = dpr;
+      renderer.setDrawingBufferSize(width, height, dpr);
+      camera.aspect = width / Math.max(1, height);
+      camera.updateProjectionMatrix();
+    }
     extent = sections.map((el, i) =>
       i ? el.getBoundingClientRect().top + scrollY - innerHeight * 0.34 : 0,
     );
     dirty = true;
   }
-  function draw() {
-    if (!visible || lost) return;
+  function draw(time = 0) {
+    if (!visible || lost || document.hidden) return;
     let chapter = 0;
     while (chapter < 3 && scrollY >= extent[chapter + 1]) chapter++;
     const distance = chapter < 3 ? extent[chapter + 1] - scrollY : Infinity;
     const t = T.MathUtils.clamp(1 - distance / (innerHeight * 0.62), 0, 1);
     const next = chapter + (motion.matches ? 0 : t * t * (3 - 2 * t));
-    if (!dirty && next === phase) return;
-    phase = next;
-    // Cross the bench as the diagnostic channels settle into the model stack.
-    narrative.style.setProperty(
-      '--bench-cross',
-      String(T.MathUtils.smoothstep(phase, 2.05, 2.95)),
-    );
-
+    if (
+      !dirty &&
+      next === phase &&
+      (motion.matches || time - lastFrame < 1 / 30)
+    )
+      return;
+    const smoothing = motion.matches
+      ? 1
+      : 1 - Math.exp(-Math.min(0.12, Math.max(0.012, time - lastFrame)) * 13);
+    lastFrame = time;
+    orbit += (yaw - orbit) * smoothing;
+    pitch += (tilt - pitch) * smoothing;
+    ax += (px - ax) * smoothing;
+    ay += (py - ay) * smoothing;
+    if (phase !== next) {
+      phase = next;
+      narrative.style.setProperty(
+        '--bench-cross',
+        String(T.MathUtils.smoothstep(phase, 2.05, 2.95)),
+      );
+    }
     dirty = false;
     const story = Math.round(phase);
     if (lastLabel !== story) {
@@ -205,45 +179,37 @@ export function mountInstrument(host: HTMLElement) {
     const lo = Math.floor(phase),
       hi = Math.min(3, lo + 1),
       f = phase - lo;
-    for (let i = 0; i < count; i++) {
-      const from = layout(lo, i, selection),
-        to = layout(hi, i, selection);
-      const v = from.map((x, k) => T.MathUtils.lerp(x, to[k], f));
-      dummy.position.set(v[0], v[1], v[2]);
-      dummy.rotation.set(v[3], v[4], v[5]);
-      dummy.scale.setScalar(v[6]);
-      dummy.updateMatrix();
-      vanes.setMatrixAt(i, dummy.matrix);
-      morph.morphTargetInfluences![0] = T.MathUtils.clamp(phase - 1, 0, 1);
-      vanes.setMorphAt(i, morph);
-      const selected =
-        story === 1
-          ? Math.floor(i / 12) === selection
-          : story > 1
-            ? Math.floor(i / 6) === selection
-            : i % 12 < 3;
-      color.set(selected ? '#4074ff' : i % 4 === 0 ? '#687c9c' : '#dde6f4');
-      vanes.setColorAt(i, color);
+    const idle = motion.matches ? 0 : time;
+    for (const [kind, study] of Object.entries(studies)) {
+      const weight =
+        (kind === kinds[lo] ? 1 - f : 0) + (kind === kinds[hi] ? f : 0);
+      study.model.visible = weight > 0.001;
+      if (!study.model.visible) continue;
+      study.model.scale.setScalar(weight * (kind === 'atlas' ? 1 : 1.04));
+      study.model.position.set(
+        (1 - weight) * (kind === kinds[lo] ? -0.8 : 0.8),
+        -0.32 * (1 - weight),
+        0,
+      );
+      study.animate(idle, selection, Math.min(1, phase));
     }
-    if (vanes.morphTexture) vanes.morphTexture.needsUpdate = true;
-    vanes.instanceMatrix.needsUpdate = true;
-    if (vanes.instanceColor) vanes.instanceColor.needsUpdate = true;
-    collar.scale.setScalar(Math.max(0.001, 1 - phase));
-    collar.visible = phase < 1;
+    group.position.y = Math.sin(idle * 0.72) * 0.025;
     group.rotation.set(
-      -0.34 + tilt + 0.11 * phase,
-      -0.47 + yaw + 0.19 * phase,
-      0.22 - 0.11 * phase,
+      pitch + ay * 0.05,
+      -0.35 + orbit + ax * 0.08 + Math.sin(idle * 0.32) * 0.07,
+      -0.025,
     );
+    const d = Math.max(1.1, 1.38 / camera.aspect);
     camera.position.set(
-      0.28 * Math.sin(phase),
-      0.22 * phase,
-      Math.max(7.2, 6.3 / camera.aspect),
+      0.55 * d,
+      (3.3 - 0.66 * Math.min(phase, 1)) * d,
+      5.05 * d,
     );
-    camera.lookAt(0, 0, 0);
-    rim.position.x = 2 * Math.cos(phase);
+    camera.lookAt(0, -0.53 + 0.57 * Math.min(phase, 1), 0);
+    rim.position.x = 3 + ax * 0.65;
     renderer.render(scene, camera);
-    readout.textContent = Math.round(((yaw * 180) / Math.PI) % 360) + '°';
+    const angle = Math.round(((yaw * 180) / Math.PI) % 360) + '°';
+    if (readout.textContent !== angle) readout.textContent = angle;
   }
   surface.addEventListener(
     'pointerdown',
@@ -259,7 +225,15 @@ export function mountInstrument(host: HTMLElement) {
   surface.addEventListener(
     'pointermove',
     (e) => {
-      if (pointer !== e.pointerId) return;
+      if (pointer !== e.pointerId) {
+        if (e.pointerType === 'mouse' && !motion.matches) {
+          const r = surface.getBoundingClientRect();
+          px = (2 * (e.clientX - r.left)) / r.width - 1;
+          py = (2 * (e.clientY - r.top)) / r.height - 1;
+          dirty = true;
+        }
+        return;
+      }
       yaw += (e.clientX - lastX) * 0.012;
       tilt = T.MathUtils.clamp(tilt + (e.clientY - lastY) * 0.009, -1.1, 1.1);
       lastX = e.clientX;
@@ -272,6 +246,14 @@ export function mountInstrument(host: HTMLElement) {
     'lostpointercapture',
     () => {
       pointer = null;
+    },
+    opts,
+  );
+  surface.addEventListener(
+    'pointerleave',
+    () => {
+      px = py = 0;
+      dirty = true;
     },
     opts,
   );
@@ -308,9 +290,9 @@ export function mountInstrument(host: HTMLElement) {
       caption.textContent = names[0];
       surface.setAttribute(
         'aria-label',
-        'Optical encoder with 36 machined vanes.',
+        'Open research notebook with an emerging neural network.',
       );
-      delete host.dataset.ready;
+      followWithPoster();
     },
     opts,
   );
@@ -330,11 +312,8 @@ export function mountInstrument(host: HTMLElement) {
     observer.disconnect();
     intersect.disconnect();
     gsap.ticker.remove(draw);
-    geo.dispose();
-    mat.dispose();
-    collarGeo.dispose();
-    collarMat.dispose();
-    vanes.dispose();
+    Object.values(studies).forEach((study) => study.dispose());
+    key.shadow.dispose();
     env.dispose();
     renderer.dispose();
     renderer.domElement.remove();

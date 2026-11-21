@@ -72,16 +72,34 @@ export function useExhibitionMotion() {
           scrub: true,
         },
       });
+      const controls = new AbortController();
       gsap.utils.toArray<HTMLElement>('.scene-slot').forEach((slot) => {
         const kind = slot.dataset.scene;
         const steps = kind === 'skills' ? 6 : kind === 'method' ? 4 : 0;
         if (!steps) return;
-        let last = -1;
+        let last = -1,
+          manual = false;
+        const panel = slot.closest('.process-bench, .tool-explorer');
+        panel?.addEventListener(
+          'click',
+          (event) => {
+            if ((event.target as Element).closest('button,canvas'))
+              manual = true;
+          },
+          { capture: true, signal: controls.signal },
+        );
+        const resume = () => {
+          manual = false;
+          last = -1;
+        };
         ScrollTrigger.create({
           trigger: slot,
           start: 'top 76%',
           end: 'bottom 36%',
+          onLeave: resume,
+          onLeaveBack: resume,
           onUpdate: (self) => {
+            if (manual) return;
             const step = Math.min(steps - 1, Math.floor(self.progress * steps));
             if (step !== last) {
               last = step;
@@ -91,7 +109,7 @@ export function useExhibitionMotion() {
         });
       });
       const grid = document.querySelector('.archive .disclosure-body');
-      if (!grid) return;
+      if (!grid) return () => controls.abort();
       const archiveMotion = gsap.fromTo(
         '.archive-card',
         { rotationX: 8, y: 14 },
@@ -112,7 +130,10 @@ export function useExhibitionMotion() {
         attributes: true,
         attributeFilter: ['aria-hidden'],
       });
-      return () => observer.disconnect();
+      return () => {
+        observer.disconnect();
+        controls.abort();
+      };
     });
     return () => media.revert();
   }, []);

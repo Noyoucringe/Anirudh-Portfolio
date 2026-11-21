@@ -28,7 +28,7 @@ class Guard extends Component<{ children: ReactNode }, { failed: boolean }> {
 }
 function ObjectView({ slot }: { slot: HTMLElement }) {
   const kind = slot.dataset.scene as Exhibit;
-  const { model, parts, dispose } = useMemo(() => buildModel(kind), [kind]);
+  const { model, animate, dispose } = useMemo(() => buildModel(kind), [kind]);
   const { invalidate, gl, scene, camera, setDpr } = useThree();
   const keyLight = useRef<T.DirectionalLight>(null);
   const slowFrames = useRef(0);
@@ -121,9 +121,20 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
       slot.removeEventListener('orbit', orbit);
     };
   }, [slot, invalidate, kind]);
-  useFrame((_, delta) => {
+  const reduced = useMemo(
+    () => matchMedia('(prefers-reduced-motion: reduce)'),
+    [],
+  );
+  useEffect(() => {
+    // Schedule only the mounted diagram, and leave explicit controls available in reduced motion.
+    const timer = window.setInterval(() => {
+      if (!document.hidden && !reduced.matches) invalidate();
+    }, 1000 / 24);
+    return () => clearInterval(timer);
+  }, [invalidate, reduced]);
+  useFrame(({ clock }, delta) => {
     // Ignore the long intervals between demand-rendered frames.
-    if (delta > 0.038 && delta < 0.15) slowFrames.current++;
+    if (delta > 1.5 / 24 && delta < 0.2) slowFrames.current++;
     else slowFrames.current = 0;
     if (slowFrames.current === 8 && gl.getPixelRatio() > 1) setDpr(1);
     const { progress, yaw, tilt } = pose.current,
@@ -132,16 +143,15 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
       keyLight.current.position.x = 2 + progress * 2 + tilt * 5;
     model.rotation.set(
       0.16 + progress * 0.12,
-      -0.48 + yaw + tilt + progress * 0.95,
+      -0.31 +
+        yaw +
+        tilt +
+        progress * 0.36 +
+        (reduced.matches ? 0 : Math.sin(clock.elapsedTime * 0.36) * 0.07),
       0,
     );
     model.scale.setScalar(0.94 + 0.06 * Math.sin(progress * Math.PI));
-    parts.forEach((part, i) => {
-      const origin = part.userData.origin as T.Vector3;
-      part.position.copy(origin);
-      part.scale.setScalar(i === stage ? 1.25 : 1);
-      part.position.y += i === stage ? 0.18 : 0;
-    });
+    animate(reduced.matches ? 0 : clock.elapsedTime, stage);
     camera.position.set(
       progress * 0.55,
       2.45 + progress * 0.22,

@@ -16,33 +16,22 @@ export default function Instrument() {
     <figure
       ref={ref}
       className="optics"
-      aria-label="Interactive optical encoder"
+      aria-label="Interactive Knowledge Atlas"
     >
       <div
         className="optics-surface"
         role="img"
-        aria-label="Optical encoder with 36 machined vanes."
+        aria-label="Open research notebook with an emerging neural network."
       >
-        <svg
+        <img
           className="optics-plate"
-          aria-hidden="true"
-          viewBox="-130 -110 260 220"
-        >
-          <g transform="rotate(-16) scale(1 .82)">
-            {Array.from({ length: 36 }, (_, i) => (
-              <path
-                key={i}
-                d="M45 0 Q62 -14 99 -7 L102 1 Q75 -2 49 12Z"
-                transform={'rotate(' + i * 10 + ')'}
-                fill={i % 12 < 3 ? '#6089ff' : '#a5b4cb'}
-                stroke="#273450"
-              />
-            ))}
-          </g>
-        </svg>
+          style={{ objectFit: 'contain' }}
+          src="/art/atlas.webp"
+          alt=""
+        />
       </div>
       <figcaption>
-        <strong>Optical encoder</strong>
+        <strong>Knowledge Atlas</strong>
         <span className="instrument-controls">
           <button value="-1" aria-label="Rotate instrument left">
             ↶
