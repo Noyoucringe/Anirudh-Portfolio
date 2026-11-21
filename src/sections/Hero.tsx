@@ -16,8 +16,7 @@ export default function Hero() {
           </h1>
           <p>
             I study computer science at KLH and build full-stack applications.
-            My interests span machine learning, distributed systems, and
-            fintech.
+            My interests span machine learning, deep learning, and AI.
           </p>
           <div className="core-actions">
             <Action href="#work" direction="down">
