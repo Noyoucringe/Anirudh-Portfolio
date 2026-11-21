@@ -45,7 +45,7 @@ export const selectedProjects: Project[] = [
   },
   {
     id: 'qwen',
-    name: 'AI Code Reviewer',
+    name: 'Qwen Code Reviewer',
     field: 'Qwen fine-tuning / ML research',
     tagline: 'What changes when a small model learns to review code?',
     stack: ['Python', 'PyTorch', 'PEFT / LoRA'],

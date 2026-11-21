@@ -20,6 +20,7 @@ export function installRuler(rail: HTMLElement) {
     height = 0,
     top = 0,
     anchors: number[] = [],
+    labelScales: number[] = [],
     velocity = 0,
     lastY = scrollY,
     zoom = 0,
@@ -36,9 +37,17 @@ export function installRuler(rail: HTMLElement) {
     const bounds = scale.getBoundingClientRect();
     height = bounds.height;
     top = bounds.top;
+    const labelWidth =
+      rail.querySelector<HTMLElement>('.rail-words')!.clientWidth;
+    labelScales = words.map((link) =>
+      Math.min(1.85, (labelWidth - 4) / Math.max(1, link.offsetWidth)),
+    );
     anchors = destinations.map((el) =>
       clamp(
-        (el.getBoundingClientRect().top + scrollY - 80) / Math.max(1, extent),
+        (el.getBoundingClientRect().top +
+          scrollY -
+          Math.max(80, innerHeight * 0.27)) /
+          Math.max(1, extent),
       ),
     );
     dirty = true;
@@ -103,19 +112,31 @@ export function installRuler(rail: HTMLElement) {
     words.forEach((link, i) => {
       const upper = inset + i * gap;
       const lower = height - inset - (words.length - i) * gap;
-      const riding = i === active;
-      const position = riding
-        ? clamp(p * height - gap, upper + (i > 0 ? gap * 0.72 : 0), lower)
-        : i < active
-          ? upper
-          : lower;
+      // Queue, follow the needle, then settle into the completed stack.
+      const travel = Math.min(
+        0.025,
+        (innerHeight * 0.24) / Math.max(1, extent),
+      );
+      const approach = (start: number) => {
+        const t = clamp((p - start) / travel + 1);
+        return t * t * (3 - 2 * t);
+      };
+      const enter = i === 0 ? 1 : approach(anchors[i]);
+      const leave = i === words.length - 1 ? 0 : approach(anchors[i + 1]);
+      const follow = clamp(
+        p * height - gap,
+        upper + (i ? gap * 0.72 : 0),
+        lower,
+      );
+      const position =
+        (lower + (follow - lower) * enter) * (1 - leave) + upper * leave;
       const map = clamp(anchors[i] * height, prev + gap, lower);
       prev = map;
       link.style.transform =
         'translateY(' +
         (position + (map - position) * zoom) +
         'px) scale(' +
-        (riding ? 1.85 - 0.85 * zoom : 1) +
+        (1 + (labelScales[i] - 1) * enter * (1 - leave) * (1 - zoom)) +
         ')';
       link.dataset.state =
         i < active ? 'stacked' : i === active ? 'riding' : 'queued';

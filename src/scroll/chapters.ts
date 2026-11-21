@@ -1,8 +1,6 @@
 export const chapters = [
   ['home', 'Intro'],
-  ['sentinelai', 'SentinelAI'],
-  ['winfix', 'WinFix AI'],
-  ['qwen', 'Qwen'],
+  ['work', 'Projects'],
   ['more-projects', 'Archive'],
   ['about', 'Workflow'],
   ['skills', 'Skills'],

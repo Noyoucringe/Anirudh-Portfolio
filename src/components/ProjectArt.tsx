@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import SceneSlot from '../three/SceneSlot';
 import { stages } from '../data/stages';
 type Scene = keyof typeof stages;
 const events = [
@@ -37,7 +36,13 @@ export default function ProjectArt({ id }: { id: Scene }) {
   const [index, setIndex] = useState(0),
     [issue, setIssue] = useState(0);
   const options = stages[id];
-  const select = (value: number) => setIndex(value % options.length);
+  const select = (value: number) => {
+    const stage = value % options.length;
+    setIndex(stage);
+    document.dispatchEvent(
+      new CustomEvent('instrument-select', { detail: stage }),
+    );
+  };
   const controls = (
     <div className="stage-options" role="group" aria-label={id + ' stages'}>
       {options.map(([name], i) => (
@@ -57,13 +62,7 @@ export default function ProjectArt({ id }: { id: Scene }) {
   );
   if (id === 'sentinel')
     return (
-      <figure className="control-room">
-        <SceneSlot
-          kind="sentinel"
-          label="Login event network"
-          stage={index}
-          onSelect={select}
-        />
+      <figure className="control-room" data-selection={index}>
         <label className="demo-choice">
           Synthetic login event
           <select value={index} onChange={(e) => select(+e.target.value)}>
@@ -89,13 +88,7 @@ export default function ProjectArt({ id }: { id: Scene }) {
     );
   if (id === 'winfix')
     return (
-      <div className="diagnostic-desk">
-        <SceneSlot
-          kind="winfix"
-          label="Diagnostic modules"
-          stage={index}
-          onSelect={select}
-        />
+      <div className="diagnostic-desk" data-selection={index}>
         <label className="demo-choice">
           Sample issue
           <select
@@ -114,20 +107,37 @@ export default function ProjectArt({ id }: { id: Scene }) {
         </label>
         <div className="diagnostic-body">
           {controls}
-          <div className="diagnostic-detail">{detail}</div>
+          <div className="diagnostic-detail">
+            {detail}
+            {index < 4 ? (
+              <button className="next-stage" onClick={() => select(index + 1)}>
+                {index === 3 ? 'Approve sample action' : 'Continue'} →
+              </button>
+            ) : (
+              <button className="next-stage" onClick={() => select(0)}>
+                Restart diagnosis ↺
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
   return (
-    <div className="training-bench">
-      <SceneSlot
-        kind="qwen"
-        label="Qwen2.5-1.5B · model cross-section"
-        stage={index}
-        onSelect={select}
-      />
+    <div className="training-bench" data-selection={index}>
       {controls}
       {detail}
+      {index === 5 && (
+        <dl className="model-comparison">
+          <div>
+            <dt>Baseline run</dt>
+            <dd>Frozen Qwen2.5-1.5B weights</dd>
+          </div>
+          <div>
+            <dt>Adapted run</dt>
+            <dd>Same prompts, trained LoRA attached</dd>
+          </div>
+        </dl>
+      )}
     </div>
   );
 }

@@ -1,0 +1,242 @@
+.instrument-label {
+  color: #b4c5e4;
+  font: 500 0.77rem/1.5 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.core-hero {
+  padding-top: 74px;
+}
+.core-copy h1 {
+  margin: 22px 0;
+}
+.core-copy > p:not(.instrument-label) {
+  color: #b9c6da;
+  font-size: clamp(1rem, 1.4vw, 1.23rem);
+}
+.core-actions {
+  margin-top: 24px;
+}
+.story {
+  --story-right: var(--rail-space, var(--gutter));
+  --usable: calc(100% - var(--gutter) - var(--story-right));
+  position: relative;
+  display: grid;
+  grid-template-areas: 'exhibit';
+  color: #e9edf4;
+  background:
+    radial-gradient(ellipse at 64% 12%, #17263e 0, transparent 34%),
+    var(--exhibit-bg);
+}
+.story-stage,
+.story-copy {
+  grid-area: exhibit;
+  min-width: 0;
+}
+.story-stage {
+  align-self: start;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--story-right);
+  z-index: 2;
+  pointer-events: none;
+}
+.optics {
+  width: calc((100vw - var(--gutter) - var(--story-right)) * 0.49);
+  margin: 0;
+  position: relative;
+  pointer-events: auto;
+}
+.optics-surface {
+  height: clamp(270px, 37vw, 560px);
+  position: relative;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.optics-surface:active {
+  cursor: grabbing;
+}
+.optics canvas,
+.optics-plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.optics[data-ready] .optics-plate,
+.optics:not([data-ready]) .instrument-controls {
+  display: none;
+}
+.optics figcaption {
+  margin: 0 8%;
+  padding: 8px 0;
+  border-top: 1px solid #455065;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 12px var(--mono);
+  letter-spacing: 0.04em;
+  color: #c1cce1;
+}
+.optics figcaption strong {
+  font-weight: 500;
+}
+.instrument-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.instrument-controls button {
+  border: 0;
+  background: transparent;
+  color: #dae5fa;
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 24px;
+}
+.instrument-readout {
+  min-width: 4ch;
+  text-align: center;
+}
+.story .container {
+  margin-left: var(--gutter);
+  width: calc(var(--usable) * 0.49);
+  max-width: 49rem;
+}
+.story .core-hero,
+.story .chapter {
+  background: transparent;
+  color: inherit;
+}
+.story .core-layout {
+  display: flex;
+  align-items: center;
+  min-height: calc(92svh - 74px);
+  padding: 40px 0;
+}
+.core-copy h1,
+.story .chapter-title h2 {
+  font-family: var(--display);
+  font-weight: 520;
+  letter-spacing: -0.075em;
+  line-height: 0.97;
+}
+.core-copy h1 {
+  font-size: clamp(3.4rem, 6.6vw, 8rem);
+}
+.core-copy h1 em {
+  color: #b9c8e4;
+  font-family: var(--editorial);
+  font-style: italic;
+  letter-spacing: -0.065em;
+}
+.story .core-copy > p:not(.instrument-label) {
+  max-width: 38ch;
+}
+.story .chapter-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 22px;
+}
+.story .chapter {
+  padding-block: clamp(46px, 6vw, 100px);
+  border-top: 1px solid #343c49;
+}
+.story .chapter-title h2 {
+  font-size: clamp(2.9rem, 5.5vw, 7rem);
+  text-wrap: balance;
+}
+.story .chapter-title p:last-child {
+  font: italic clamp(1.2rem, 2vw, 2rem) / 1.25 var(--editorial);
+  color: #becde4;
+}
+.story .chapter-title .instrument-label {
+  color: #a0beff;
+}
+@media (max-width: 799px) {
+  .story {
+    display: flex;
+    flex-direction: column;
+    padding-top: 62px;
+    --usable: calc(100% - 2 * var(--gutter));
+  }
+  .story-stage {
+    top: 60px;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    padding: 0;
+    background: linear-gradient(#0c131e 88%, #101923);
+    border-bottom: 1px solid #313a46;
+  }
+  .optics {
+    width: min(100%, 560px);
+  }
+  .optics-surface {
+    height: clamp(118px, 26svh, 220px);
+  }
+  .optics figcaption {
+    margin: 0 var(--gutter);
+    padding: 0;
+    font-size: 11px;
+  }
+  .instrument-controls button {
+    min-height: 32px;
+  }
+  .story .container {
+    width: var(--usable);
+  }
+  .story .core-hero {
+    padding: 0;
+  }
+  .story .core-layout {
+    min-height: 0;
+    padding: 32px 0 44px;
+  }
+  .core-copy h1 {
+    font-size: clamp(3.5rem, 11vw, 6.4rem);
+  }
+  .story #work,
+  .story .chapter {
+    scroll-margin-top: calc(26svh + 38px);
+  }
+}
+@media print {
+  .story-stage {
+    display: none;
+  }
+  .story .container {
+    width: auto;
+  }
+  .story {
+    display: block;
+    color: #111;
+    background: white;
+  }
+}
+
+@media (max-width: 799px) and (max-height: 500px) {
+  .story-stage {
+    position: relative;
+    top: 0;
+  }
+  .story #work,
+  .story .chapter {
+    scroll-margin-top: 0;
+  }
+}
+
+@media (min-width: 800px) {
+  .optics {
+    transform: translateX(calc(-104% * var(--bench-cross, 0)));
+  }
+  .story:has(.optics[data-ready]) .chapter-qwen .chapter-layout {
+    margin-left: calc(var(--gutter) + var(--usable) * 0.51);
+  }
+}

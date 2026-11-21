@@ -2,7 +2,6 @@ import { Action } from '../components/Primitives';
 export default function Hero() {
   return (
     <section
-      id="home"
       className="core-hero"
       tabIndex={-1}
       aria-labelledby="hero-title"
@@ -26,22 +25,6 @@ export default function Hero() {
             </Action>
           </div>
         </div>
-        <a
-          className="hero-laptop"
-          href="#sentinelai"
-          aria-label="Explore SentinelAI, shown on the laptop screen"
-        >
-          <div className="laptop-lid">
-            <img
-              src="/art/sentinel-dashboard.webp"
-              alt="SentinelAI security dashboard"
-            />
-          </div>
-          <div className="laptop-deck" aria-hidden="true">
-            <div className="laptop-keys" />
-            <div className="laptop-trackpad" />
-          </div>
-        </a>
       </div>
     </section>
   );

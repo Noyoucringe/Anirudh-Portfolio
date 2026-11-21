@@ -1,3 +1,7 @@
-The exhibition uses procedural meshes. Edit models.ts to change the containment assembly, diagnostic board, adapter stack or event network. Each model factory owns its geometries and materials and disposes them on scene changes. No external models, HDR downloads or Blender runtime are required. Blender MCP was unavailable during authoring. There are no Blender or GLB source assets in this version.
+# Exhibition renderer
 
-SceneSlot supplies accessible orientation controls, a labeled drawing fallback and a target for a shared canvas. Exhibition moves that canvas to the most visible scene and renders on demand. Native scroll drives GSAP ScrollTrigger timelines. Horizontal drag and the rotation buttons change the model's orientation. Reduced motion retains explicit user controls. Build with npm run build and run npm run preview to inspect the production bundle.
+The hero and three featured projects share the instanced mesh in `SignalInstrument.ts`. Its 36 beveled vanes open into an event perimeter, unroll into diagnostic contacts, and form the layers of an adapter stack. Chapter positions determine the pose in both scroll directions. Project controls select the highlighted contacts. Dragging and the rotation buttons change the viewing angle.
+
+The instrument uses the GSAP clock and renders when its pose, selection, orientation, or viewport changes. An intersection observer suspends rendering outside the stage. Reduced motion selects discrete poses. The prerendered illustration supplies the initial and WebGL fallback frame.
+
+The workflow and skills diagrams use the on-demand React Three Fiber canvas in `Exhibition.tsx`. Their geometry and materials are owned by the factories in `models.ts`.

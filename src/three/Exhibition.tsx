@@ -32,7 +32,7 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
   const { invalidate, gl, scene, camera, setDpr } = useThree();
   const keyLight = useRef<T.DirectionalLight>(null);
   const slowFrames = useRef(0);
-  const pose = useRef({ progress: 0, yaw: 0, tilt: 0, entrance: 0 });
+  const pose = useRef({ progress: 0, yaw: 0, tilt: 0 });
   useEffect(() => {
     const pmrem = new T.PMREMGenerator(gl),
       room = new RoomEnvironment(),
@@ -49,7 +49,7 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
   useEffect(() => dispose, [dispose]);
   useEffect(() => {
     const state = pose.current;
-    Object.assign(state, { progress: 0, yaw: 0, tilt: 0, entrance: 1 });
+    Object.assign(state, { progress: 0, yaw: 0, tilt: 0 });
     const media = gsap.matchMedia();
     media.add(
       {
@@ -59,7 +59,6 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
       },
       (context) => {
         if (context.conditions?.reduce) {
-          state.entrance = 1;
           invalidate();
           return;
         }
@@ -68,7 +67,7 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
           ease: 'none',
           scrollTrigger: {
             trigger: slot,
-            start: kind === 'core' ? 'top top' : 'top bottom',
+            start: 'top bottom',
             end: 'bottom top',
             scrub: true,
           },
@@ -127,52 +126,28 @@ function ObjectView({ slot }: { slot: HTMLElement }) {
     if (delta > 0.038 && delta < 0.15) slowFrames.current++;
     else slowFrames.current = 0;
     if (slowFrames.current === 8 && gl.getPixelRatio() > 1) setDpr(1);
-    const { progress, yaw, tilt, entrance } = pose.current,
+    const { progress, yaw, tilt } = pose.current,
       stage = Number(slot.dataset.stage);
     if (keyLight.current)
       keyLight.current.position.x = 2 + progress * 2 + tilt * 5;
     model.rotation.set(
       0.16 + progress * 0.12,
       -0.48 + yaw + tilt + progress * 0.95,
-      kind === 'core' ? -0.23 : kind === 'contact' ? 0.29 : 0,
+      0,
     );
-    model.scale.setScalar(
-      kind === 'qwen'
-        ? 1 - 0.22 * progress
-        : 0.94 + 0.06 * Math.sin(progress * Math.PI),
-    );
+    model.scale.setScalar(0.94 + 0.06 * Math.sin(progress * Math.PI));
     parts.forEach((part, i) => {
       const origin = part.userData.origin as T.Vector3;
       part.position.copy(origin);
-      if (kind === 'core' || kind === 'contact')
-        part.position.y +=
-          Math.sign(origin.y) *
-          ((1 - entrance) * 0.6 + (kind === 'core' ? progress * 0.6 : 0));
-      else if (kind === 'qwen') {
-        part.position.y +=
-          origin.y * (progress * 0.45) + (i === stage ? 0.17 : 0);
-        if (stage === 5) {
-          part.scale.setScalar(0.68);
-          part.position.set(i < 3 ? -0.86 : 0.86, ((i % 3) - 1) * 0.28, 0);
-        } else {
-          part.scale.setScalar(1);
-          part.position.x = i === stage ? 0.27 : 0;
-        }
-      } else {
-        part.scale.setScalar(i === stage ? 1.25 : 1);
-        part.position.y += i === stage ? 0.18 : 0;
-      }
+      part.scale.setScalar(i === stage ? 1.25 : 1);
+      part.position.y += i === stage ? 0.18 : 0;
     });
     camera.position.set(
       progress * 0.55,
       2.45 + progress * 0.22,
       5.1 - progress * 0.42,
     );
-    const selected = parts[stage];
-    if (kind === 'sentinel' && selected) {
-      const point = selected.getWorldPosition(new T.Vector3());
-      camera.lookAt(point.multiplyScalar(progress * 0.3));
-    } else camera.lookAt(0, 0, 0);
+    camera.lookAt(0, 0, 0);
   });
   return (
     <>

@@ -7,58 +7,19 @@ export function useExhibitionMotion() {
   useEffect(() => {
     const media = gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)', () => {
-      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
-      intro
-        .from('.core-copy .instrument-label', {
-          y: 8,
-          opacity: 0.55,
-          duration: 0.35,
-        })
-        .from(
-          '.core-copy h1',
-          { clipPath: 'inset(0 0 90% 0)', y: 12, duration: 0.65 },
-          0.12,
-        )
-        .from('.core-actions', { y: 9, opacity: 0.45, duration: 0.4 }, 0.46);
-      gsap.utils.toArray<SVGSVGElement>('.chapter-seam').forEach((seam) => {
-        seam.querySelectorAll('path').forEach((path) =>
-          gsap.to(path, {
-            attr: { d: path.dataset.next ?? path.getAttribute('d') ?? '' },
-            ease: 'none',
-            scrollTrigger: {
-              trigger: seam,
-              start: 'top 95%',
-              end: 'bottom 30%',
-              scrub: true,
-            },
-          }),
-        );
-      });
-      gsap.to('.core-copy h1', {
-        scale: 0.43,
-        y: -28,
-        transformOrigin: 'left top',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '#home',
-          start: 'top top',
-          end: '75% top',
-          scrub: true,
-        },
-      });
-      gsap.fromTo(
-        '.site-header .wordmark span',
-        { opacity: 0.25 },
-        {
-          opacity: 1,
+      gsap.utils.toArray<HTMLElement>('.chapter-title h2').forEach((title) => {
+        gsap.from(title, {
+          xPercent: -3,
+          letterSpacing: '-.045em',
+          ease: 'none',
           scrollTrigger: {
-            trigger: '#home',
-            start: 'top top',
-            end: '40% top',
+            trigger: title,
+            start: 'top 95%',
+            end: 'center 52%',
             scrub: true,
           },
-        },
-      );
+        });
+      });
       gsap.utils
         .toArray<HTMLElement>('.credential-grid details')
         .forEach((card) =>
@@ -113,18 +74,7 @@ export function useExhibitionMotion() {
       });
       gsap.utils.toArray<HTMLElement>('.scene-slot').forEach((slot) => {
         const kind = slot.dataset.scene;
-        const steps =
-          kind === 'skills'
-            ? 6
-            : kind === 'method'
-              ? 4
-              : kind === 'winfix'
-                ? 5
-                : kind === 'qwen'
-                  ? 6
-                  : kind === 'sentinel'
-                    ? 3
-                    : 0;
+        const steps = kind === 'skills' ? 6 : kind === 'method' ? 4 : 0;
         if (!steps) return;
         let last = -1;
         ScrollTrigger.create({

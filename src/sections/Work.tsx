@@ -1,4 +1,3 @@
-import ChapterSeam from '../components/ChapterSeam';
 import ProjectGlyph from '../components/ProjectGlyph';
 import { moreProjects, selectedProjects, type Project } from '../data/projects';
 import { Arrow } from '../components/Primitives';
@@ -13,7 +12,6 @@ function Chapter({ project }: { project: Project }) {
       id={id === 'sentinel' ? 'sentinelai' : id}
       className={'chapter chapter-' + id}
     >
-      <ChapterSeam from={id === 'sentinel' ? 0 : id === 'winfix' ? 1 : 2} />
       <div className="container chapter-layout">
         <header className="chapter-title">
           <p className="instrument-label">{project.field}</p>
@@ -48,40 +46,43 @@ export default function Work() {
       {selectedProjects.map((project) => (
         <Chapter key={project.id} project={project} />
       ))}
-      <div className="container archive-shell" id="more-projects">
-        <ChapterSeam from={3} />
-        <Disclosure
-          title="Explore More Projects"
-          description="Five more builds, experiments, and collaborations."
-          className="archive"
-        >
-          <div className="archive-grid">
-            {moreProjects.map((project, index) => (
-              <article className="archive-card" key={project.name}>
-                <ProjectGlyph index={index} />
-                <p className="eyebrow">{project.tech}</p>
-                <h3>{project.name}</h3>
-                <details>
-                  <summary>Project details</summary>
-                  <p>{project.detail}</p>
-                </details>
-                <div className="project-links">
-                  {project.url && (
-                    <a href={project.url}>
-                      GitHub <Arrow direction="up-right" />
-                    </a>
-                  )}
-                  {project.demo && (
-                    <a href={project.demo}>
-                      Live demo <Arrow direction="up-right" />
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-        </Disclosure>
-      </div>
     </section>
+  );
+}
+export function Archive() {
+  return (
+    <div className="container archive-shell" id="more-projects">
+      <Disclosure
+        title="Explore More Projects"
+        description="Five more builds, experiments, and collaborations."
+        className="archive"
+      >
+        <div className="archive-grid">
+          {moreProjects.map((project, index) => (
+            <article className="archive-card" key={project.name}>
+              <ProjectGlyph index={index} />
+              <p className="eyebrow">{project.tech}</p>
+              <h3>{project.name}</h3>
+              <details>
+                <summary>Project details</summary>
+                <p>{project.detail}</p>
+              </details>
+              <div className="project-links">
+                {project.url && (
+                  <a href={project.url}>
+                    GitHub <Arrow direction="up-right" />
+                  </a>
+                )}
+                {project.demo && (
+                  <a href={project.demo}>
+                    Live demo <Arrow direction="up-right" />
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </Disclosure>
+    </div>
   );
 }

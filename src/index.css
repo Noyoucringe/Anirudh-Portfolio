@@ -1,12 +1,8 @@
 @import './styles/fonts.css';
 @import './styles/tokens.css';
 @import './styles/base.css';
-@import './styles/hero.css';
-@import './styles/work.css';
+@import './styles/components.css';
 @import './styles/profile.css';
-@import './styles/corrective.css';
-@import './styles/playground.css';
 @import './styles/chapters.css';
-@import './styles/ending.css';
-@import './styles/exhibition.css';
 @import './styles/scroll.css';
+@import './styles/story.css';

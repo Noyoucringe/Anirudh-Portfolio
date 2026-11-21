@@ -1,306 +1,151 @@
-.chapter {
-  position: relative;
-  padding-block: clamp(52px, 7vw, 112px);
-  scroll-margin-top: 0;
-}
-.chapter-layout {
-  display: grid;
-  gap: 30px 6%;
-  align-items: center;
-}
-.chapter-title h2 {
-  font-size: clamp(3.2rem, 7vw, 7.5rem);
-  margin: 0.14em 0;
-  line-height: 1;
-}
-.chapter-title > p:last-child {
-  font-size: clamp(1.1rem, 2vw, 1.65rem);
-  letter-spacing: -0.035em;
-}
 .chapter-details {
-  max-width: 66ch;
-}
-.chapter-stack,
-.monitor-strip {
-  font: 0.78rem/1.6 var(--mono);
+  color: #bac7d9;
+  font-size: 0.97rem;
 }
 .chapter-stack {
-  margin-top: 14px;
+  font: 12px/1.6 var(--mono);
+  color: #98b3db;
+  margin: 14px 0;
 }
 .chapter .project-links {
-  margin-block: 15px;
+  margin: 12px 0;
 }
 .chapter .project-links a {
-  color: inherit;
+  color: #e0eaff;
 }
 .chapter .engineering-notes {
-  border-color: currentColor;
+  border-color: var(--exhibit-rule);
 }
-.chapter-sentinel {
-  background: linear-gradient(#070a12, #0b182a 44%, #101b29);
-  color: #ecf4ff;
-  border-top: 1px solid #26374e;
-}
-.chapter-sentinel .chapter-layout {
-  grid-template-columns: minmax(0, 2fr) minmax(210px, 1fr);
-}
-.chapter-sentinel header {
-  grid-column: 1/-1;
-}
-.chapter-sentinel .chapter-details {
-  border-left: 1px solid #45607b;
-  padding-left: 24px;
-}
-.control-room,
-.diagnostic-desk,
-.training-bench {
-  min-width: 0;
+.chapter .disclosure button {
+  color: inherit;
 }
 .control-room {
-  background: #101d2e;
-  border: 1px solid #48617c;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.monitor-strip {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 12px 18px;
-  border-bottom: 1px solid #8393aa55;
-}
-.monitor-strip i {
-  width: 8px;
-  height: 8px;
-  background: #8fdccc;
-  border-radius: 50%;
-}
-.monitor-strip span {
-  margin-left: auto;
-  font-size: 0.7rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  border-block: 1px solid var(--exhibit-rule);
+  padding-block: 14px;
 }
 .control-room img {
   width: 100%;
   height: auto;
   display: block;
+  border: 1px solid #3d4e65;
+  border-radius: 3px;
 }
-.control-room figcaption,
-.training-bench .stage-detail {
-  padding: 14px 20px;
+.control-room figcaption {
+  font: 11px/1.4 var(--mono);
+  color: #a8b6ca;
 }
 .stage-detail strong {
-  font: 600 clamp(1.2rem, 2.2vw, 1.9rem) / 1.25 var(--display);
-  letter-spacing: -0.04em;
-}
-.stage-detail {
-  animation: stage-enter 0.35s var(--ease);
+  font: 600 clamp(1.1rem, 1.75vw, 1.65rem) / 1.2 var(--display);
+  letter-spacing: -0.035em;
 }
 .stage-detail p {
-  font-size: 0.95rem;
-  margin-top: 7px;
+  font-size: 0.93rem;
+  line-height: 1.5;
+  color: #bdcadc;
+  margin-top: 6px;
 }
-.control-room .stage-detail {
-  min-height: 98px;
-  margin-top: 14px;
+.demo-choice {
+  display: grid;
+  gap: 8px;
+  font: 12px/1.4 var(--mono);
+  color: #aab9d3;
 }
-.chapter-winfix {
-  background: #e5f0ed;
-  color: #142e31;
-}
-.chapter-winfix .instrument-label {
-  color: #316466;
-}
-.chapter-winfix .chapter-layout {
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr);
-}
-.chapter-winfix .chapter-title h2 {
-  font-size: clamp(3rem, 6vw, 6rem);
+.demo-choice select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  background: #151d2a;
+  color: #f0f4fc;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  font: 500 0.88rem var(--body);
+  padding: 11px 6px;
 }
 .diagnostic-desk {
-  grid-column: 2;
-  grid-row: 1/3;
-  background: #fafdfe;
-  border: 1px solid #89a7a3;
-  box-shadow: 10px 12px 0 #c4d8d4;
-  border-radius: 9px;
-  overflow: hidden;
-}
-.diagnostic-desk .monitor-strip {
-  background: #173639;
-  color: white;
+  border-top: 1px solid var(--exhibit-rule);
+  padding-top: 16px;
 }
 .diagnostic-body {
   display: grid;
-  grid-template-columns: 35% 1fr;
-  min-height: 320px;
+  grid-template-columns: minmax(88px, 0.7fr) 2fr;
+  gap: 18px;
+  margin-top: 18px;
 }
 .diagnostic-body .stage-options {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background: #d5e6e2;
-  padding: 10px;
-  gap: 3px;
+  align-items: stretch;
+  gap: 0;
+  border-left: 1px solid #59687b;
 }
-.diagnostic-body button {
-  text-align: start;
-  padding-inline: 12px;
+.diagnostic-body .stage-options button {
+  font: 12px var(--mono);
+  color: #a7b6ca;
+  text-align: left;
+  padding: 9px 10px;
+  background: none;
   border: 0;
 }
-.diagnostic-body button[aria-pressed='true'] {
-  background: #fff;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px #13282c22;
+.diagnostic-body .stage-options button[aria-pressed='true'] {
+  box-shadow: -2px 0 #94bbff;
+  color: white;
+  background: #19283d;
 }
-.diagnostic-detail {
-  padding: clamp(16px, 2.6vw, 40px);
-  align-self: center;
-}
-.diagnostic-detail svg {
-  width: 85%;
-  color: #277571;
-  margin-bottom: 24px;
-}
-.chapter-qwen {
-  color: #f1edff;
-  background:
-    radial-gradient(ellipse at 30% 50%, #272847, transparent 63%), #0c0e1a;
-}
-.chapter-qwen .chapter-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-}
-.chapter-qwen header {
-  grid-column: 2;
-}
-.chapter-qwen .chapter-details {
-  grid-column: 2;
+.next-stage {
+  margin-top: 16px;
+  padding: 8px 0;
+  background: none;
+  color: #bdd6ff;
+  border: 0;
+  border-bottom: 1px solid #687e9c;
+  font: 600 0.85rem var(--display);
 }
 .training-bench {
-  grid-column: 1;
-  grid-row: 1/3;
-  border-block: 1px solid #646183;
-  background: linear-gradient(135deg, #ffffff08, transparent);
-}
-.model-cutaway {
-  width: 100%;
-  height: auto;
-  background-image: radial-gradient(#aab3ff36 1px, transparent 1px);
-  background-size: 16px 16px;
-}
-.adapter-plate,
-.base-plates {
-  transition:
-    opacity 0.4s,
-    transform 0.45s;
-}
-.phase-0 .adapter-plate {
-  opacity: 0.14;
-  transform: translateY(12px);
-}
-.phase-1 .base-plates {
-  opacity: 0.45;
-}
-.phase-2 .adapter-plate {
-  transform: translateY(12px);
-}
-.phase-3 .base-plates {
-  transform: translateY(12px);
+  border-block: 1px solid var(--exhibit-rule);
+  padding: 14px 0;
 }
 .training-bench .stage-options {
-  padding-inline: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: #36445a;
+}
+.training-bench .stage-options button {
+  background: #101a2b;
+  color: #bdcbe1;
+  border: 0;
+  padding: 10px 3px;
+  font: 12px var(--mono);
+}
+.training-bench .stage-options button[aria-pressed='true'] {
+  background: #354d80;
+  color: #fff;
 }
 .training-bench .stage-detail {
-  min-height: 122px;
+  padding: 18px 0 4px;
+}
+.model-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.model-comparison div {
+  border-top: 1px solid #5e749a;
+  padding-top: 8px;
+  font-size: 0.85rem;
+}
+.model-comparison dt {
+  color: #a2bff3;
+  font: 12px var(--mono);
+  margin-bottom: 6px;
 }
 .archive-shell {
-  padding-block: 25px 42px;
+  padding-block: 36px 45px;
 }
 .archive-shell .archive {
   margin: 0;
-}
-.chapter .disclosure button {
-  color: inherit;
-}
-.chapter .stage-options button:focus-visible {
-  outline-offset: 1px;
-}
-@keyframes stage-enter {
-  from {
-    opacity: 0.55;
-    transform: translateY(5px);
-  }
-}
-@supports (animation-timeline: view()) {
-  @media (min-width: 800px) and (prefers-reduced-motion: no-preference) {
-    .control-room {
-      animation: enter-room linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 95%;
-    }
-    .training-bench .base-plates {
-      animation: assemble linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 100%;
-    }
-  }
-}
-@keyframes enter-room {
-  from {
-    transform: perspective(1000px) rotateX(8deg) scale(0.94);
-    border-color: #24374c;
-  }
-  to {
-    transform: none;
-    border-color: #73899d;
-  }
-}
-@keyframes assemble {
-  from {
-    translate: 0 25px;
-    opacity: 0.45;
-  }
-  to {
-    translate: 0 0;
-    opacity: 1;
-  }
-}
-@media (max-width: 800px) {
-  .chapter .chapter-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .chapter .chapter-layout > * {
-    grid-column: 1;
-    grid-row: auto;
-  }
-  .chapter-sentinel .chapter-details {
-    padding: 0;
-    border: 0;
-  }
-  .chapter .chapter-layout {
-    gap: 24px;
-  }
-  .diagnostic-body {
-    min-height: 260px;
-  }
-  .stage-options {
-    gap: 3px 9px;
-  }
-  .chapter .stage-options button {
-    font-size: 0.81rem;
-  }
-  .monitor-strip {
-    padding: 10px;
-  }
-  .monitor-strip span {
-    font-size: 0.64rem;
-  }
-  .control-room figcaption {
-    padding: 10px 12px;
-  }
-  .diagnostic-body .stage-options {
-    padding: 4px;
-  }
-  .training-bench .stage-detail {
-    min-height: 140px;
-  }
 }
